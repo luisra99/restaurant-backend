@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  seed     = "ts-node src/seed.ts"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model Concept {
+  id           Int      @id @default(autoincrement())
+  denomination String
+  details      String?
+  fatherId     Int?     // Relación opcional para permitir valores nulos
+  conceptFather Concept? @relation("FatherConcept", fields: [fatherId], references: [id])
+  childConcept Concept[] @relation("FatherConcept") // Relación inversa para los conceptos hijos
+}
+
+model Area {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  details     String?
+  color       String
+  accounts    Account[] // Relación con cuentas para el seguimiento de ingresos por área
+}
+
+model Offer {
+  id           Int      @id @default(autoincrement())
+  idType       Int
+  name         String
+  description  String
+  price        Decimal
+  details      String?
+  offerType    Concept  @relation(fields: [idType], references: [id])
+  accountDetails AccountDetails[] // Relación con los detalles de cuenta
+}
+
+model Account {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  idArea      Int
+  accountArea Area     @relation(fields: [idArea], references: [id])
+  active      Boolean  @default(true)
+  created     DateTime @default(now())
+  closed      DateTime?
+  subTotal    Decimal
+  total       Decimal // Para el cálculo del total incluyendo descuentos, impuestos, etc.
+  payments    Payment[] // Relación con los pagos
+  details     AccountDetails[] // Relación con los detalles de la cuenta
+}
+
+model AccountDetails {
+  id           Int      @id @default(autoincrement())
+  idAccount    Int
+  idOffer      Int
+  time         DateTime @default(now())
+  quantity     Int      // Cantidad del producto ofertado
+  account      Account  @relation(fields: [idAccount], references: [id])
+  offer        Offer    @relation(fields: [idOffer], references: [id])
+}
+
+model Payment {
+  id          Int      @id @default(autoincrement())
+  idAccount   Int
+  amount      Decimal
+  method      String   // Método de pago (efectivo, tarjeta, etc.)
+  date        DateTime @default(now())
+  account     Account  @relation(fields: [idAccount], references: [id])
+}
+
+model Inventory {
+  id          Int      @id @default(autoincrement())
+  name        String
+  stock       Int
+  price       Decimal
+  offerId     Int
+  offer       Offer    @relation(fields: [offerId], references: [id])
+}

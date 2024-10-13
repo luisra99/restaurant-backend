@@ -1,0 +1,59 @@
+{
+  "name": "prisma-ts-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "set NODE_ENV=development&& ts-node-dev --respawn src/index.ts",
+    "migrate": "npx prisma migrate dev",
+    "init": "npx prisma generate && npx prisma migrate dev",
+    "studio": "npx prisma studio"
+  },
+  "prisma": {
+    "seed": "ts-node ./prisma/seed.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/escpos": "^2.5.5",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/morgan": "^1.9.9",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.11.5",
+    "@types/nodemailer": "^6.4.14",
+    "prisma": "^5.8.1",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.8.1",
+    "@tillpos/xml-escpos-helper": "^0.3.1",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "escpos": "^3.0.0-alpha.6",
+    "escpos-usb": "^3.0.0-alpha.4",
+    "escpos-usb-usb": "^3.0.2",
+    "escpos-xml": "^1.0.0",
+    "express": "^4.18.2",
+    "fs": "^0.0.1-security",
+    "html-pdf": "^3.0.1",
+    "html-to-text": "^9.0.5",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.1.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "node-brother-label-printer": "^1.1.1",
+    "nodemailer": "^6.9.13",
+    "nodemon": "^3.0.3",
+    "puppeteer": "^23.5.1",
+    "ts-node-dev": "^2.0.0",
+    "usb": "^2.14.0",
+    "zod": "^3.22.4"
+  }
+}
