@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 // Estados del Sistema
 // Cuentas activas: Cuentas que están abiertas y recibiendo pedidos.
@@ -22,132 +22,171 @@ const prisma = new PrismaClient()
 
 async function main() {
   // Seed data for Concepts
-  const concept1 = await prisma.concept.create({
-    data: { denomination: "Bebidas", details: "Categoría de bebidas" },
-  })
-  const concept2 = await prisma.concept.create({
-    data: { denomination: "Comidas", details: "Categoría de comidas", fatherId: concept1.id },
-  })
-
-  // Seed data for Areas
-  const area1 = await prisma.area.create({
-    data: { name: "Salón Principal", description: "Área principal del restaurante", details: "Con capacidad para 50 personas", color: "#ffcc00" },
-  })
-  const area2 = await prisma.area.create({
-    data: { name: "Terraza", description: "Área al aire libre", details: "Vista al mar", color: "#00ccff" },
-  })
-
-  // Seed data for Offers (Available)
-  const offer1 = await prisma.offer.create({
+  const categoria = await prisma.concept.create({
+    data: { denomination: "Categorias", details: "Categorías de las ofertas" },
+  });
+  const tipoCuenta = await prisma.concept.create({
     data: {
-      name: "Pizza Margarita",
-      description: "Pizza con queso mozzarella y tomate",
-      price: 12.50,
-      idType: concept2.id,
-      details: "Tamaño mediano",
+      denomination: "Tipo de cuenta",
+      details: "Categorías de las ofertas",
     },
-  })
-  const offer2 = await prisma.offer.create({
+  });
+  const area = await prisma.concept.create({
+    data: { denomination: "Areas", details: "Categorías de las ofertas" },
+  });
+  const divisa = await prisma.concept.create({
+    data: { denomination: "Divisas", details: "Categorías de las ofertas" },
+  });
+  const tipoPago = await prisma.concept.create({
     data: {
-      name: "Cerveza Artesanal",
-      description: "Cerveza rubia de la casa",
-      price: 5.00,
-      idType: concept1.id,
-      details: "500ml",
+      denomination: "Tipos de pago",
+      details: "Categorías de las ofertas",
     },
-  })
-
-  // Seed data for Accounts (Active and Closed)
-  const account1 = await prisma.account.create({
+  });
+  const estadoCuenta = await prisma.concept.create({
     data: {
-      name: "Mesa 1",
-      description: "Mesa en el salón principal",
-      idArea: area1.id,
-      active: true,
-      subTotal: 17.50,
-      total: 20.50,
-      created: new Date(),
+      denomination: "Estado cuenta",
+      details: "Categorías de las ofertas",
     },
-  })
+  });
+  const mainCategories = await prisma.concept.createMany({
+    data: [
+      {
+        denomination: "Bebidas",
+        details: "Variedad de bebidas",
+        fatherId: categoria.id,
+      },
+      {
+        denomination: "Entrantes",
+        details: "Pequeñas porciones para empezar",
+        fatherId: categoria.id,
+      },
+      {
+        denomination: "Sopas",
+        details: "Deliciosas opciones líquidas",
+        fatherId: categoria.id,
+      },
+      {
+        denomination: "Ensaladas",
+        details: "Frescas mezclas de verduras y más",
+        fatherId: categoria.id,
+      },
+      {
+        denomination: "Platos Fuertes",
+        details: "Opciones principales del menú",
+        fatherId: categoria.id,
+      },
+      {
+        denomination: "Postres",
+        details: "Dulces delicias para terminar",
+        fatherId: categoria.id,
+      },
+    ],
+  });
+  const mainTipoCuenta = await prisma.concept.createMany({
+    data: [
+      {
+        denomination: "Cuenta local",
+        details: "Variedad de bebidas",
+        fatherId: tipoCuenta.id,
+      },
+      {
+        denomination: "Para llevar",
+        details: "Pequeñas porciones para empezar",
+        fatherId: tipoCuenta.id,
+      },
+      {
+        denomination: "Cuenta casa",
+        details: "Deliciosas opciones líquidas",
+        fatherId: tipoCuenta.id,
+      },
+    ],
+  });
+  const mainAreas = await prisma.concept.createMany({
+    data: [
+      {
+        denomination: "Barra",
+        details: "Área para servir bebidas y aperitivos",
+        fatherId: area.id,
+      },
+      {
+        denomination: "Salón",
+        details: "Área principal para servicio al cliente",
+        fatherId: area.id,
+      },
+      {
+        denomination: "Cocina",
+        details: "Área donde se preparan los alimentos",
+        fatherId: area.id,
+      },
+    ],
+  });
+  const mainDivisas = await prisma.concept.createMany({
+    data: [
+      {
+        denomination: "USD",
+        details: "Dólares americanos",
+        fatherId: divisa.id,
+      },
+      {
+        denomination: "EUR",
+        details: "Euros",
+        fatherId: divisa.id,
+      },
+      {
+        denomination: "MLC",
+        details: "Moneda libremente convertible",
+        fatherId: divisa.id,
+      },
+    ],
+  });
+  const mainTipoPago = await prisma.concept.createMany({
+    data: [
+      {
+        denomination: "Efectivo",
+        details: "Pago normal en cup",
+        fatherId: tipoPago.id,
+      },
+      {
+        denomination: "Divisa",
+        details: "Distintos tipos",
+        fatherId: tipoPago.id,
+      },
+      {
+        denomination: "MLC",
+        details: "Por transferencia",
+        fatherId: tipoPago.id,
+      },
+      {
+        denomination: "Transferencia",
+        details: "CUP",
+        fatherId: tipoPago.id,
+      },
+    ],
+  });
+  const mainEstadoCuenta = await prisma.concept.createMany({
+    data: [
+      {
+        denomination: "Abierta",
+        details: "La cuenta esta en uso",
+        fatherId: estadoCuenta.id,
+      },
+      {
+        denomination: "Cerrada",
+        details: "La cuenta esta terminada",
+        fatherId: estadoCuenta.id,
+      },
+    ],
+  });
 
-  const account2 = await prisma.account.create({
-    data: {
-      name: "Mesa 2",
-      description: "Mesa en la terraza",
-      idArea: area2.id,
-      active: false, // Closed account
-      subTotal: 10.00,
-      total: 11.50,
-      created: new Date(),
-      closed: new Date(),
-    },
-  })
-
-  // Seed data for Account Details (Pending and Served Orders)
-  await prisma.accountDetails.create({
-    data: {
-      idAccount: account1.id,
-      idOffer: offer1.id,
-      time: new Date(),
-      quantity: 2, // Pedido en progreso
-    },
-  })
-
-  await prisma.accountDetails.create({
-    data: {
-      idAccount: account2.id,
-      idOffer: offer2.id,
-      time: new Date(),
-      quantity: 1, // Pedido servido y cerrado
-    },
-  })
-
-  // Seed data for Payments (Multiple Methods)
-  await prisma.payment.create({
-    data: {
-      idAccount: account2.id,
-      amount: 11.50,
-      method: "Efectivo", // Pago realizado en efectivo
-      date: new Date(),
-    },
-  })
-
-  await prisma.payment.create({
-    data: {
-      idAccount: account1.id,
-      amount: 20.50,
-      method: "Tarjeta", // Pago en proceso por tarjeta
-      date: new Date(),
-    },
-  })
-
-  // Seed data for Inventory (Stock and Out of Stock)
-  await prisma.inventory.create({
-    data: {
-      name: "Cerveza Artesanal",
-      stock: 50,
-      price: 5.00,
-      offerId: offer2.id,
-    },
-  })
-
-  await prisma.inventory.create({
-    data: {
-      name: "Pizza Margarita",
-      stock: 0, // Agotado
-      price: 12.50,
-      offerId: offer1.id,
-    },
-  })
-
-  console.log("Seed data created successfully!")
+  console.log("Seed data created successfully!");
 }
 
 main()
-  .catch(e => {
-    console.error(e)
-    process.exit(1)
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });
