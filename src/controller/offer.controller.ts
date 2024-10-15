@@ -17,7 +17,7 @@ const deleteOldImage = (imagePath: string | null) => {
 export const createOffer = async (req: Request, res: Response) => {
   try {
     const { name, description, details, idArea, idCategory, price } = req.body;
-    const image = req.file?.path; // Obtén la ruta de la imagen subida
+    const image = req.file?.filename; // Obtén la ruta de la imagen subida
 
     const newOffer = await prisma.offer.create({
       data: {

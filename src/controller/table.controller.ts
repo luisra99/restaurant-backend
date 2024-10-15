@@ -43,6 +43,32 @@ export const listTables = async (req: Request, res: Response) => {
     res.status(500).json(descripcionError);
   }
 };
+// Listar todas las mesas
+export const getTable = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const table = await prisma.table.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    if (!table) {
+      return res.status(404).json({ message: "Mesa no encontrada" });
+    }
+
+    res.status(200).json(table);
+  } catch (error) {
+    const err = error as Error & { code?: string };
+    const descripcionError = {
+      message: "Error listando las mesas.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+    res.status(500).json(descripcionError);
+  }
+};
 
 // Modificar una mesa
 export const updateTable = async (req: Request, res: Response) => {

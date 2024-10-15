@@ -17,17 +17,6 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(cookieParser());
 
-app.use(
-  "/public/users",
-  express.static(path.join(__dirname, "/uploads/users"))
-);
-app.use(
-  "/public/courses",
-  express.static(path.join(__dirname, "/uploads/courses"))
-);
-app.use(
-  "/public/certificates",
-  express.static(path.join(__dirname, "/uploads/certificates"))
-);
+app.use("/public", express.static(path.join(__dirname, "/uploads")));
 
 export default app;

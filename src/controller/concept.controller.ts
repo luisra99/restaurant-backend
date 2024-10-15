@@ -54,6 +54,36 @@ export const listConcepts = async (req: Request, res: Response) => {
   }
 };
 
+// Obtener un concepto
+
+export const getConcept = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const concept = await prisma.concept.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    if (!concept) {
+      return res.status(404).json({ message: "Concepto no encontrado" });
+    }
+
+    res.status(200).json(concept);
+  } catch (error) {
+    const err = error as Error & { code?: string };
+
+    const descripcionError = {
+      message: "Ha ocurrido un error listando los conceptos.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
+
 // Modificar Concepto
 export const updateConcept = async (req: Request, res: Response) => {
   try {

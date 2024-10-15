@@ -6,7 +6,7 @@ import fs from "fs";
 // Configuración de almacenamiento
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = "uploads/";
+    const dir = "src/uploads/";
 
     // Verifica si la carpeta existe, si no, la crea
     if (!fs.existsSync(dir)) {
