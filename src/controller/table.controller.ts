@@ -31,8 +31,32 @@ export const createTable = async (req: Request, res: Response) => {
 // Listar todas las mesas
 export const listTables = async (req: Request, res: Response) => {
   try {
-    const tables = await prisma.table.findMany();
-    res.status(200).json(tables);
+    const tables = await prisma.table.findMany({
+      include: {
+        Account: {
+          include: { details: { include: { offer: true } }, _count: true },
+        },
+      },
+    });
+    const response = tables.map((table) => {
+      let amount = 0;
+
+      // Si la mesa tiene una cuenta asociada
+      if (table.Account) {
+        // Iterar sobre los detalles de la cuenta para calcular el total
+        amount = table.Account.details.reduce((total, detail) => {
+          return total + detail.offer.price.toNumber() * detail.quantity;
+        }, 0);
+      }
+
+      // Retornar la mesa con el total calculado
+
+      return {
+        ...table,
+        amount, // Total calculado para esta mesa
+      };
+    });
+    res.status(200).json(response);
   } catch (error) {
     const err = error as Error & { code?: string };
     const descripcionError = {

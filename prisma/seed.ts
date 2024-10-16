@@ -49,40 +49,54 @@ async function main() {
       details: "Categorías de las ofertas",
     },
   });
-  const mainCategories = await prisma.concept.createMany({
-    data: [
-      {
-        denomination: "Bebidas",
-        details: "Variedad de bebidas",
-        fatherId: categoria.id,
-      },
-      {
-        denomination: "Entrantes",
-        details: "Pequeñas porciones para empezar",
-        fatherId: categoria.id,
-      },
-      {
-        denomination: "Sopas",
-        details: "Deliciosas opciones líquidas",
-        fatherId: categoria.id,
-      },
-      {
-        denomination: "Ensaladas",
-        details: "Frescas mezclas de verduras y más",
-        fatherId: categoria.id,
-      },
-      {
-        denomination: "Platos Fuertes",
-        details: "Opciones principales del menú",
-        fatherId: categoria.id,
-      },
-      {
-        denomination: "Postres",
-        details: "Dulces delicias para terminar",
-        fatherId: categoria.id,
-      },
-    ],
+  const bebidas = await prisma.concept.create({
+    data: {
+      denomination: "Bebidas",
+      details: "Variedad de bebidas",
+      fatherId: categoria.id,
+    },
   });
+
+  const entrantes = await prisma.concept.create({
+    data: {
+      denomination: "Entrantes",
+      details: "Pequeñas porciones para empezar",
+      fatherId: categoria.id,
+    },
+  });
+
+  const sopas = await prisma.concept.create({
+    data: {
+      denomination: "Sopas",
+      details: "Deliciosas opciones líquidas",
+      fatherId: categoria.id,
+    },
+  });
+
+  const ensaladas = await prisma.concept.create({
+    data: {
+      denomination: "Ensaladas",
+      details: "Frescas mezclas de verduras y más",
+      fatherId: categoria.id,
+    },
+  });
+
+  const platosFuertes = await prisma.concept.create({
+    data: {
+      denomination: "Platos Fuertes",
+      details: "Opciones principales del menú",
+      fatherId: categoria.id,
+    },
+  });
+
+  const postres = await prisma.concept.create({
+    data: {
+      denomination: "Postres",
+      details: "Dulces delicias para terminar",
+      fatherId: categoria.id,
+    },
+  });
+
   const mainTipoCuenta = await prisma.concept.createMany({
     data: [
       {
@@ -102,25 +116,30 @@ async function main() {
       },
     ],
   });
-  const mainAreas = await prisma.concept.createMany({
-    data: [
-      {
-        denomination: "Barra",
-        details: "Área para servir bebidas y aperitivos",
-        fatherId: area.id,
-      },
-      {
-        denomination: "Salón",
-        details: "Área principal para servicio al cliente",
-        fatherId: area.id,
-      },
-      {
-        denomination: "Cocina",
-        details: "Área donde se preparan los alimentos",
-        fatherId: area.id,
-      },
-    ],
+  const barra = await prisma.concept.create({
+    data: {
+      denomination: "Barra",
+      details: "Área para servir bebidas y aperitivos",
+      fatherId: area.id,
+    },
   });
+
+  const salon = await prisma.concept.create({
+    data: {
+      denomination: "Salón",
+      details: "Área principal para servicio al cliente",
+      fatherId: area.id,
+    },
+  });
+
+  const cocina = await prisma.concept.create({
+    data: {
+      denomination: "Cocina",
+      details: "Área donde se preparan los alimentos",
+      fatherId: area.id,
+    },
+  });
+
   const mainDivisas = await prisma.concept.createMany({
     data: [
       {
@@ -177,6 +196,38 @@ async function main() {
         fatherId: estadoCuenta.id,
       },
     ],
+  });
+  const mainTaxesDiscounts = await prisma.taxDiscounts.createMany({
+    data: [
+      { name: "Impuesto por servicio", percent: 10, tax: true, status: true },
+      {
+        name: "Impuesto por servicio",
+        percent: 5.5,
+        tax: false,
+        status: false,
+      },
+    ],
+  });
+  const mainTable = await prisma.table.create({
+    data: { name: "Mesa 1", details: "Vista al mar", capacity: 5 },
+  });
+  const mainOffer = await prisma.offer.create({
+    data: {
+      name: "Jugo natural",
+      description: "Frutas de la temporada",
+      price: 250,
+      idArea: barra.id,
+      idCategory: bebidas.id,
+    },
+  });
+  const mainAccount = await prisma.account.create({
+    data: {
+      name: "Raul",
+      description: "El informatico",
+      people: 3,
+      idTable: mainTable.id,
+      details: { create: { quantity: 2, idOffer: mainOffer.id } },
+    },
   });
 
   console.log("Seed data created successfully!");

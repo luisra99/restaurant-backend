@@ -45,23 +45,26 @@ model Offer {
 }
 
 model Table {
-  id       Int       @id @default(autoincrement())
-  name     String
-  capacity Int
-  details  String
-  Account  Account[]
+  id        Int       @id @default(autoincrement())
+  name      String
+  capacity  Int
+  details   String
+  reserverd DateTime?
+  Account   Account?
 }
 
 model Account {
   id          Int              @id @default(autoincrement())
   name        String
   description String
+  idTable     Int?             @unique
+  people      Int?
+  idDependent Int?
   taxDiscount Int[]
   active      Boolean          @default(true)
   created     DateTime         @default(now())
   closed      DateTime?
-  idTable     Int
-  table       Table            @relation(fields: [idTable], references: [id])
+  table       Table?           @relation(fields: [idTable], references: [id])
   payments    Payment[] // Relación con los pagos
   details     AccountDetails[] // Relación con los detalles de la cuenta
 }
