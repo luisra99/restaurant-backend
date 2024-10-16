@@ -20,6 +20,8 @@ model Concept {
   childConcept  Concept[] @relation("FatherConcept") // Relación inversa para los conceptos hijos
   OfferArea     Offer[]   @relation(name: "OfferArea")
   OfferCategory Offer[]   @relation(name: "OfferCategory")
+
+  Account Account[]
 }
 
 model TaxDiscounts {
@@ -56,14 +58,16 @@ model Table {
 model Account {
   id          Int              @id @default(autoincrement())
   name        String
-  description String
+  description String?
   idTable     Int?             @unique
+  idType      Int              @default(13)
   people      Int?
   idDependent Int?
   taxDiscount Int[]
   active      Boolean          @default(true)
   created     DateTime         @default(now())
   closed      DateTime?
+  type        Concept          @relation(fields: [idType], references: [id])
   table       Table?           @relation(fields: [idTable], references: [id])
   payments    Payment[] // Relación con los pagos
   details     AccountDetails[] // Relación con los detalles de la cuenta
