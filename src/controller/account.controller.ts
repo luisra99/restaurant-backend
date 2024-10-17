@@ -39,6 +39,69 @@ export const openAccount = async (req: Request, res: Response) => {
     res.status(500).json(descripcionError);
   }
 };
+// Modificar pedidos de la cuenta
+export const modifyAccountDetails = async (req: Request, res: Response) => {
+  try {
+    const { idAccount, idOffer, quantity, negative } = req.body;
+    let response;
+    let detail = await prisma.accountDetails.findFirst({
+      where: { idAccount, idOffer },
+    });
+    if (detail) {
+      detail.quantity = negative
+        ? detail.quantity - quantity
+        : detail.quantity + quantity;
+
+      response =
+        detail.quantity !== 0
+          ? await prisma.accountDetails.update({
+              where: { id: detail.id },
+              data: detail,
+            })
+          : await prisma.accountDetails.delete({ where: { id: detail.id } });
+    } else {
+      if (quantity != 0)
+        response = await prisma.accountDetails.create({
+          data: { idAccount, idOffer, quantity },
+        });
+    }
+    res.status(201).json(response);
+  } catch (error) {
+    const err = error as Error & { code?: string };
+    console.error(error);
+    const descripcionError = {
+      message: "Ha ocurrido un error creando el concepto.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
+// Eliminar pedidos de la cuenta
+export const deleteAccountDetails = async (req: Request, res: Response) => {
+  try {
+    const { idAccount, idOffer } = req.params;
+    let response = await prisma.accountDetails.deleteMany({
+      where: {
+        idAccount: Number(idAccount),
+        idOffer: Number(idOffer),
+      },
+    });
+
+    res.status(201).json(response);
+  } catch (error) {
+    const err = error as Error & { code?: string };
+    console.error(error);
+    const descripcionError = {
+      message: "Ha ocurrido un error creando el concepto.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
 // Listar todos los Conceptos
 export const getAccount = async (req: Request, res: Response) => {
   try {
