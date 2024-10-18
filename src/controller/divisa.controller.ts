@@ -4,28 +4,34 @@ import { Request, Response } from "express";
 const prisma = new PrismaClient();
 
 // Obtener el concepto padre "Divisas"
-async function getDivisasParentConcept() {
+export async function getDivisasParentConcept() {
   return await prisma.concept.findFirst({
     where: { denomination: "Divisas" },
   });
 }
-
-// Listar todas las divisas (children de Divisas)
-export const listDivisas = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getDivisas = async () => {
   try {
     const divisasParent = await getDivisasParentConcept();
     if (!divisasParent) {
-      res.status(404).json({ message: 'Concepto "Divisas" no encontrado.' });
       return;
     }
 
     const divisas = await prisma.concept.findMany({
       where: { fatherId: divisasParent.id },
     });
-
+    return divisas;
+  } catch (error) {
+    console.log({ error: (error as Error).message });
+    return;
+  }
+};
+// Listar todas las divisas (children de Divisas)
+export const listDivisas = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const divisas = await getDivisas();
     res.status(200).json(divisas);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });

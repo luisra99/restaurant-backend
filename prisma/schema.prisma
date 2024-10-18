@@ -20,8 +20,7 @@ model Concept {
   childConcept  Concept[] @relation("FatherConcept") // Relación inversa para los conceptos hijos
   OfferArea     Offer[]   @relation(name: "OfferArea")
   OfferCategory Offer[]   @relation(name: "OfferCategory")
-
-  Account Account[]
+  Account       Account[]
 }
 
 model TaxDiscounts {

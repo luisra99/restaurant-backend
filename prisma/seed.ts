@@ -34,9 +34,6 @@ async function main() {
   const area = await prisma.concept.create({
     data: { denomination: "Areas", details: "Categorías de las ofertas" },
   });
-  const divisa = await prisma.concept.create({
-    data: { denomination: "Divisas", details: "Categorías de las ofertas" },
-  });
   const tipoPago = await prisma.concept.create({
     data: {
       denomination: "Tipos de pago",
@@ -153,25 +150,6 @@ async function main() {
     },
   });
 
-  const mainDivisas = await prisma.concept.createMany({
-    data: [
-      {
-        denomination: "USD",
-        details: "Dólares americanos",
-        fatherId: divisa.id,
-      },
-      {
-        denomination: "EUR",
-        details: "Euros",
-        fatherId: divisa.id,
-      },
-      {
-        denomination: "MLC",
-        details: "Moneda libremente convertible",
-        fatherId: divisa.id,
-      },
-    ],
-  });
   const mainTipoPago = await prisma.concept.createMany({
     data: [
       {

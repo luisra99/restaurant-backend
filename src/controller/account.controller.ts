@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { getDivisas } from "./divisa.controller";
 
 const prisma = new PrismaClient();
 
 // Abrir cuenta
 export const openAccount = async (req: Request, res: Response) => {
   try {
-    const { name, description, people, idDependent, idTable, details } =
+    const { name, description, people, idDependent, idTable, idType, details } =
       req.body;
 
     const activeTaxDiscounts = await prisma.taxDiscounts.findMany({
@@ -22,6 +23,7 @@ export const openAccount = async (req: Request, res: Response) => {
         description,
         idDependent,
         idTable,
+        idType: idType ? Number(idType) : undefined,
         taxDiscount: activeTaxDiscounts.map((tax) => tax.id),
       },
     });
@@ -123,6 +125,8 @@ export const getAccount = async (req: Request, res: Response) => {
         totalPrice: detail.quantity * Number(detail.offer.price), // Multiplica cantidad por precio
       };
     });
+    const divisas = await getDivisas();
+
     // Calcular el total de todas las cantidades
     const totalQuantity = orders?.reduce(
       (sum, order) => sum + order.quantity,
@@ -141,7 +145,7 @@ export const getAccount = async (req: Request, res: Response) => {
         })
       : [];
     // Calcular el precio final basado en los impuestos y descuentos
-    let finalPrice = totalPrice;
+    let finalPrice: number = totalPrice;
     const mappedTaxsDiscounts = taxsDiscounts.map((item: any) => {
       const amount = (item.percent / 100) * totalPrice;
 
@@ -159,6 +163,14 @@ export const getAccount = async (req: Request, res: Response) => {
         amount, // Monto calculado basado en el percent
       };
     });
+    const divisaAmount = divisas?.map((divisa: any) => {
+      return {
+        denomination: divisa.denomination,
+        amount: (
+          finalPrice / Number(parseFloat(divisa.details).toFixed(2))
+        ).toFixed(2),
+      };
+    });
     res.status(200).json({
       ...account,
       mappedTaxsDiscounts,
@@ -166,6 +178,7 @@ export const getAccount = async (req: Request, res: Response) => {
       totalQuantity,
       totalPrice,
       finalPrice,
+      divisaAmount,
     });
   } catch (error) {
     const err = error as Error & { code?: string };
