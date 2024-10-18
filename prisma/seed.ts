@@ -49,6 +49,19 @@ async function main() {
       details: "Categorías de las ofertas",
     },
   });
+  const divisasConcept = await prisma.concept.create({
+    data: {
+      denomination: "Divisas",
+      details: "Tipos de divisas o monedas utilizadas en transacciones.",
+      childConcept: {
+        create: [
+          { denomination: "USD", details: "1.2" },
+          { denomination: "EUR", details: "1.1" },
+          { denomination: "MLC", details: "1.4" },
+        ],
+      },
+    },
+  });
   const bebidas = await prisma.concept.create({
     data: {
       denomination: "Bebidas",
