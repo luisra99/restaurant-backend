@@ -80,6 +80,27 @@ export const modifyAccountDetails = async (req: Request, res: Response) => {
     res.status(500).json(descripcionError);
   }
 };
+// Modificar pedidos de la cuenta
+export const modifyAccount = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const account = await prisma.account.update({
+      where: { id: Number(id) },
+      data: { ...req.body, idType: Number(req.body.idType) },
+    });
+    res.status(201).json(account);
+  } catch (error) {
+    const err = error as Error & { code?: string };
+    console.error(error);
+    const descripcionError = {
+      message: "Ha ocurrido un error creando el concepto.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
 // Eliminar pedidos de la cuenta
 export const deleteAccountDetails = async (req: Request, res: Response) => {
   try {
@@ -104,7 +125,7 @@ export const deleteAccountDetails = async (req: Request, res: Response) => {
     res.status(500).json(descripcionError);
   }
 };
-// Listar todos los Conceptos
+// Obtener cuenta
 export const getAccount = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -115,6 +136,7 @@ export const getAccount = async (req: Request, res: Response) => {
         table: true,
         details: { include: { offer: true } },
         type: true,
+        dependent: true,
       },
     });
     const orders = account?.details.map((detail) => {
@@ -179,6 +201,7 @@ export const getAccount = async (req: Request, res: Response) => {
       totalPrice,
       finalPrice,
       divisaAmount,
+      dependent: account?.dependent?.name,
     });
   } catch (error) {
     const err = error as Error & { code?: string };
@@ -216,78 +239,19 @@ export const listAccounts = async (req: Request, res: Response) => {
   }
 };
 
-// Obtener un concepto
-
-export const getConcept = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    const concept = await prisma.concept.findUnique({
-      where: {
-        id: Number(id),
-      },
-    });
-
-    if (!concept) {
-      return res.status(404).json({ message: "Concepto no encontrado" });
-    }
-
-    res.status(200).json(concept);
-  } catch (error) {
-    const err = error as Error & { code?: string };
-
-    const descripcionError = {
-      message: "Ha ocurrido un error listando los conceptos.",
-      code: err.code || "SERVER_ERROR",
-      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
-    };
-
-    res.status(500).json(descripcionError);
-  }
-};
-
-// Modificar Concepto
-export const updateConcept = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { denomination, details, fatherId } = req.body;
-
-    const updatedConcept = await prisma.concept.update({
-      where: { id: Number(id) },
-      data: {
-        denomination,
-        details,
-        fatherId,
-      },
-    });
-
-    res.status(200).json(updatedConcept);
-  } catch (error) {
-    const err = error as Error & { code?: string };
-
-    const descripcionError = {
-      message: "Ha ocurrido un error modificando el concepto.",
-      code: err.code || "SERVER_ERROR",
-      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
-    };
-
-    res.status(500).json(descripcionError);
-  }
-};
-
 // Eliminar Concepto
-export const deleteConcept = async (req: Request, res: Response) => {
+export const deleteAccount = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const deletedConcept = await prisma.concept.delete({
+    const deletedConcept = await prisma.account.delete({
       where: { id: Number(id) },
     });
 
     res.status(200).json(deletedConcept);
   } catch (error) {
     const err = error as Error & { code?: string };
-
+    console.log(error)
     const descripcionError = {
       message: "Ha ocurrido un error eliminando el concepto.",
       code: err.code || "SERVER_ERROR",
@@ -297,7 +261,6 @@ export const deleteConcept = async (req: Request, res: Response) => {
     res.status(500).json(descripcionError);
   }
 };
-
 // Buscar conceptos por su padre (opcionalmente incluir los hijos)
 export const findConceptsByFather = async (req: Request, res: Response) => {
   try {

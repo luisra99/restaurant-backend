@@ -55,10 +55,11 @@ model Table {
 }
 
 model Dependent {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  Account   Account[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Account {
@@ -75,6 +76,7 @@ model Account {
   closed      DateTime?
   type        Concept          @relation(fields: [idType], references: [id])
   table       Table?           @relation(fields: [idTable], references: [id])
+  dependent   Dependent?       @relation(fields: [idDependent], references: [id])
   payments    Payment[] // Relación con los pagos
   details     AccountDetails[] // Relación con los detalles de la cuenta
 }
@@ -85,7 +87,7 @@ model AccountDetails {
   idOffer   Int
   time      DateTime @default(now())
   quantity  Int // Cantidad del producto ofertado
-  account   Account  @relation(fields: [idAccount], references: [id])
+  account   Account  @relation(fields: [idAccount], references: [id],onDelete: Cascade,onUpdate: Cascade)
   offer     Offer    @relation(fields: [idOffer], references: [id])
 }
 

@@ -5,6 +5,7 @@ import {
   createTaxDiscount,
   updateTaxDiscount,
   deleteTaxDiscount,
+  alterTaxDiscount,
 } from "../controller/taxDiscount.controller";
 
 const router = express.Router();
@@ -17,6 +18,9 @@ router.get("/taxDiscounts/:id", getTaxDiscountById);
 
 // Crear un nuevo TaxDiscount
 router.post("/taxDiscounts", createTaxDiscount);
+
+// Alternar estado TaxDiscount
+router.post("/taxDiscounts/alterState/:id", alterTaxDiscount);
 
 // Actualizar un TaxDiscount
 router.put("/taxDiscounts/:id", updateTaxDiscount);

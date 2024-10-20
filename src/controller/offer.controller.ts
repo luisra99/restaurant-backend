@@ -53,7 +53,7 @@ export const updateOffer = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, description, details, idArea, idCategory, price } = req.body;
-    const image = req.file?.path; // Obtén la nueva imagen si se sube una
+    const image = req.file?.filename; // Obtén la nueva imagen si se sube una
 
     // Busca la oferta actual para eliminar la imagen anterior si existe
     const offer = await prisma.offer.findUnique({
@@ -110,6 +110,26 @@ export const listOffers = async (req: Request, res: Response) => {
         category: true,
         area: true,
       },
+    });
+
+    res.status(200).json(offers);
+  } catch (error) {
+    const err = error as Error & { code?: string };
+    const descripcionError = {
+      message: "Error listando las ofertas.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
+// Obtener oferta
+export const getOffer = async (req: Request, res: Response) => {
+  try {
+    const {id} =req.params
+    const offers = await prisma.offer.findFirst({
+      where:{id:Number(id)}
     });
 
     res.status(200).json(offers);
