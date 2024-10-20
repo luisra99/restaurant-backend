@@ -21,6 +21,8 @@ model Concept {
   OfferArea     Offer[]   @relation(name: "OfferArea")
   OfferCategory Offer[]   @relation(name: "OfferCategory")
   Account       Account[]
+  Type          Payment[] @relation(name: "TypePayment")
+  Payment       Payment[] @relation(name: "DivisaPayment")
 }
 
 model TaxDiscounts {
@@ -87,15 +89,18 @@ model AccountDetails {
   idOffer   Int
   time      DateTime @default(now())
   quantity  Int // Cantidad del producto ofertado
-  account   Account  @relation(fields: [idAccount], references: [id],onDelete: Cascade,onUpdate: Cascade)
+  account   Account  @relation(fields: [idAccount], references: [id], onDelete: Cascade, onUpdate: Cascade)
   offer     Offer    @relation(fields: [idOffer], references: [id])
 }
 
 model Payment {
   id        Int      @id @default(autoincrement())
   idAccount Int
+  idMethod  Int // Método de pago (efectivo, tarjeta, etc.)
+  idDivisa  Int? // Método de pago (efectivo, tarjeta, etc.)
   amount    Decimal
-  method    String // Método de pago (efectivo, tarjeta, etc.)
   date      DateTime @default(now())
+  divisa    Concept? @relation(name: "DivisaPayment", fields: [idDivisa], references: [id])
+  type      Concept  @relation(name: "TypePayment", fields: [idMethod], references: [id])
   account   Account  @relation(fields: [idAccount], references: [id])
 }

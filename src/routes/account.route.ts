@@ -12,8 +12,8 @@ import {
 const router = Router();
 
 router.post("/accounts", openAccount);
-router.put("/accounts/:id", modifyAccount);
 router.put("/accounts/details", modifyAccountDetails);
+router.put("/accounts/:id", modifyAccount);
 router.delete("/accounts/details/:idAccount/:idOffer", deleteAccountDetails);
 router.get("/accounts", listAccounts);
 router.get("/accounts/:id", getAccount);

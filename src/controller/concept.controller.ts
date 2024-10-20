@@ -83,6 +83,47 @@ export const getConcept = async (req: Request, res: Response) => {
     res.status(500).json(descripcionError);
   }
 };
+export const getConceptByDenomination = async (req: Request, res: Response) => {
+  try {
+    const { fatherDenomination } = req.body;
+
+    // Buscar el concepto cuyo fatherId tenga la denominación especificada
+    const fatherConcept = await prisma.concept.findFirst({
+      where: {
+        denomination: String(fatherDenomination),
+      },
+    });
+
+    if (!fatherConcept) {
+      return res.status(404).json({ message: "Concepto padre no encontrado" });
+    }
+
+    // Buscar los conceptos que tienen ese fatherId
+    const childConcepts = await prisma.concept.findMany({
+      where: {
+        fatherId: fatherConcept.id,
+      },
+    });
+
+    if (childConcepts.length === 0) {
+      return res.status(404).json({
+        message: "No se encontraron conceptos hijos para el padre especificado",
+      });
+    }
+
+    res.status(200).json(childConcepts);
+  } catch (error) {
+    const err = error as Error & { code?: string };
+
+    const descripcionError = {
+      message: "Ha ocurrido un error listando los conceptos.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
 
 // Modificar Concepto
 export const updateConcept = async (req: Request, res: Response) => {

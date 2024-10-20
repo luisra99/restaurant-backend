@@ -139,6 +139,18 @@ export const getAccount = async (req: Request, res: Response) => {
         dependent: true,
       },
     });
+
+    // Obtener todos los pagos de la cuenta
+    const payments = await prisma.payment.findMany({
+      where: { idAccount: Number(id) },
+    });
+
+    // Sumar los montos de los pagos
+    const totalPaid = payments.reduce(
+      (sum, payment) => sum + Number(payment.amount),
+      0
+    );
+
     const orders = account?.details.map((detail) => {
       return {
         id: detail.offer.id,
@@ -147,6 +159,7 @@ export const getAccount = async (req: Request, res: Response) => {
         totalPrice: detail.quantity * Number(detail.offer.price), // Multiplica cantidad por precio
       };
     });
+
     const divisas = await getDivisas();
 
     // Calcular el total de todas las cantidades
@@ -154,7 +167,7 @@ export const getAccount = async (req: Request, res: Response) => {
       (sum, order) => sum + order.quantity,
       0
     );
-    // Calcular el total de todas las cantidades
+
     // Calcular el precio total de todas las ofertas
     const totalPrice =
       orders?.reduce((sum, order) => sum + order.totalPrice, 0) ?? 0;
@@ -166,6 +179,7 @@ export const getAccount = async (req: Request, res: Response) => {
           },
         })
       : [];
+
     // Calcular el precio final basado en los impuestos y descuentos
     let finalPrice: number = totalPrice;
     const mappedTaxsDiscounts = taxsDiscounts.map((item: any) => {
@@ -185,6 +199,7 @@ export const getAccount = async (req: Request, res: Response) => {
         amount, // Monto calculado basado en el percent
       };
     });
+
     const divisaAmount = divisas?.map((divisa: any) => {
       return {
         denomination: divisa.denomination,
@@ -193,6 +208,8 @@ export const getAccount = async (req: Request, res: Response) => {
         ).toFixed(2),
       };
     });
+
+    // Enviar la respuesta incluyendo el total pagado
     res.status(200).json({
       ...account,
       mappedTaxsDiscounts,
@@ -202,6 +219,7 @@ export const getAccount = async (req: Request, res: Response) => {
       finalPrice,
       divisaAmount,
       dependent: account?.dependent?.name,
+      totalPaid, // Nuevo campo que indica cuánto se ha pagado
     });
   } catch (error) {
     const err = error as Error & { code?: string };
@@ -238,7 +256,6 @@ export const listAccounts = async (req: Request, res: Response) => {
     res.status(500).json(descripcionError);
   }
 };
-
 // Eliminar Concepto
 export const deleteAccount = async (req: Request, res: Response) => {
   try {
@@ -251,7 +268,7 @@ export const deleteAccount = async (req: Request, res: Response) => {
     res.status(200).json(deletedConcept);
   } catch (error) {
     const err = error as Error & { code?: string };
-    console.log(error)
+    console.log(error);
     const descripcionError = {
       message: "Ha ocurrido un error eliminando el concepto.",
       code: err.code || "SERVER_ERROR",

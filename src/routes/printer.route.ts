@@ -1,12 +1,10 @@
 import { Router } from "express";
-import {
-printRecip
-} from "../controller/printer.controller";
+import { printAreas, printRecip } from "../controller/printer.controller";
 
 const router = Router();
 
 router.post("/printer/account/:id", printRecip);
 router.post("/printer/register", printRecip);
-router.post("/printer/today", printRecip);
+router.get("/printer/today", printAreas);
 
 export default router;

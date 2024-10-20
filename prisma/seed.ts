@@ -23,7 +23,7 @@ const prisma = new PrismaClient();
 async function main() {
   // Seed data for Concepts
   const categoria = await prisma.concept.create({
-    data: { denomination: "Categorias", details: "Categorías de las ofertas" },
+    data: { denomination: "Categorías", details: "Categorías de las ofertas" },
   });
   const tipoCuenta = await prisma.concept.create({
     data: {
@@ -32,7 +32,7 @@ async function main() {
     },
   });
   const area = await prisma.concept.create({
-    data: { denomination: "Areas", details: "Categorías de las ofertas" },
+    data: { denomination: "Áreas", details: "Categorías de las ofertas" },
   });
   const tipoPago = await prisma.concept.create({
     data: {
@@ -155,16 +155,6 @@ async function main() {
       {
         denomination: "Efectivo",
         details: "Pago normal en cup",
-        fatherId: tipoPago.id,
-      },
-      {
-        denomination: "Divisa",
-        details: "Distintos tipos",
-        fatherId: tipoPago.id,
-      },
-      {
-        denomination: "MLC",
-        details: "Por transferencia",
         fatherId: tipoPago.id,
       },
       {
