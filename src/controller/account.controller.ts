@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { getDivisas } from "./divisa.controller";
-
+import { getAccountFunction } from "../functions/account";
 const prisma = new PrismaClient();
 
 // Abrir cuenta
@@ -15,20 +15,29 @@ export const openAccount = async (req: Request, res: Response) => {
         status: true,
       },
     });
-
-    const newAccount = await prisma.account.create({
-      data: {
-        name,
-        people,
-        description,
-        idDependent,
-        idTable,
-        idType: idType ? Number(idType) : undefined,
-        taxDiscount: activeTaxDiscounts.map((tax) => tax.id),
+    const openAccountsTables = await prisma.table.findMany({
+      where: {
+        id: Number(idTable),
+        Account: { some: { closed: { equals: null } } },
       },
+      include: { Account: true },
     });
-
-    res.status(201).json(newAccount);
+    if (openAccountsTables.length > 0) {
+      res.status(200).json({ messaje: "La mesa esta ocupada" });
+    } else {
+      const newAccount = await prisma.account.create({
+        data: {
+          name,
+          people,
+          description,
+          idDependent,
+          idTable,
+          idType: idType ? Number(idType) : undefined,
+          taxDiscount: activeTaxDiscounts.map((tax) => tax.id),
+        },
+      });
+      res.status(201).json(newAccount);
+    }
   } catch (error) {
     const err = error as Error & { code?: string };
     console.error(error);
@@ -128,99 +137,8 @@ export const deleteAccountDetails = async (req: Request, res: Response) => {
 // Obtener cuenta
 export const getAccount = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-
-    const account = await prisma.account.findFirst({
-      where: { id: Number(id) },
-      include: {
-        table: true,
-        details: { include: { offer: true } },
-        type: true,
-        dependent: true,
-      },
-    });
-
-    // Obtener todos los pagos de la cuenta
-    const payments = await prisma.payment.findMany({
-      where: { idAccount: Number(id) },
-    });
-
-    // Sumar los montos de los pagos
-    const totalPaid = payments.reduce(
-      (sum, payment) => sum + Number(payment.amount),
-      0
-    );
-
-    const orders = account?.details.map((detail) => {
-      return {
-        id: detail.offer.id,
-        name: detail.offer.name,
-        quantity: detail.quantity,
-        totalPrice: detail.quantity * Number(detail.offer.price), // Multiplica cantidad por precio
-      };
-    });
-
-    const divisas = await getDivisas();
-
-    // Calcular el total de todas las cantidades
-    const totalQuantity = orders?.reduce(
-      (sum, order) => sum + order.quantity,
-      0
-    );
-
-    // Calcular el precio total de todas las ofertas
-    const totalPrice =
-      orders?.reduce((sum, order) => sum + order.totalPrice, 0) ?? 0;
-
-    const taxsDiscounts = account?.taxDiscount.length
-      ? await prisma.taxDiscounts.findMany({
-          where: {
-            id: { in: account.taxDiscount },
-          },
-        })
-      : [];
-
-    // Calcular el precio final basado en los impuestos y descuentos
-    let finalPrice: number = totalPrice;
-    const mappedTaxsDiscounts = taxsDiscounts.map((item: any) => {
-      const amount = (item.percent / 100) * totalPrice;
-
-      // Si es impuesto, lo sumamos al precio final
-      if (item.tax) {
-        finalPrice += amount;
-      } else {
-        // Si es descuento, lo restamos del precio final
-        finalPrice -= amount;
-      }
-
-      // Devolvemos el objeto con el monto calculado
-      return {
-        ...item,
-        amount, // Monto calculado basado en el percent
-      };
-    });
-
-    const divisaAmount = divisas?.map((divisa: any) => {
-      return {
-        denomination: divisa.denomination,
-        amount: (
-          finalPrice / Number(parseFloat(divisa.details).toFixed(2))
-        ).toFixed(2),
-      };
-    });
-
-    // Enviar la respuesta incluyendo el total pagado
-    res.status(200).json({
-      ...account,
-      mappedTaxsDiscounts,
-      orders,
-      totalQuantity,
-      totalPrice,
-      finalPrice,
-      divisaAmount,
-      dependent: account?.dependent?.name,
-      totalPaid, // Nuevo campo que indica cuánto se ha pagado
-    });
+    const account = await getAccountFunction(req.params);
+    res.status(200).json(account);
   } catch (error) {
     const err = error as Error & { code?: string };
 
@@ -237,7 +155,7 @@ export const getAccount = async (req: Request, res: Response) => {
 export const listAccounts = async (req: Request, res: Response) => {
   try {
     const accounts = await prisma.account.findMany({
-      where: { active: true },
+      where: { active: true, closed: { equals: null } },
       include: {
         table: true,
       },
@@ -297,6 +215,41 @@ export const findConceptsByFather = async (req: Request, res: Response) => {
 
     const descripcionError = {
       message: "Ha ocurrido un error buscando los conceptos por padre.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
+// Eliminar Concepto
+export const closeAccount = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const account = await getAccountFunction(req.params);
+
+    const closeAccount = await prisma.account.update({
+      where: { id: Number(id) },
+      data: { closed: new Date() },
+    });
+    const change = account.finalPrice - account.totalPaid;
+    if (change < 0) {
+      const conceptoCambio = await prisma.concept.findFirst({
+        where: { denomination: "Cambio" },
+      });
+      if (conceptoCambio?.id) {
+        const withdraw = await prisma.withdraw.create({
+          data: { amount: Number(change * -1), idConcepto: conceptoCambio.id },
+        });
+      }
+    }
+
+    res.status(200).json(closeAccount);
+  } catch (error) {
+    const err = error as Error & { code?: string };
+    console.log(error);
+    const descripcionError = {
+      message: "Ha ocurrido un error eliminando el concepto.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };

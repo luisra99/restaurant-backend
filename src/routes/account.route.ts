@@ -7,6 +7,7 @@ import {
   deleteAccountDetails,
   modifyAccount,
   deleteAccount,
+  closeAccount,
 } from "../controller/account.controller";
 
 const router = Router();
@@ -17,6 +18,7 @@ router.put("/accounts/:id", modifyAccount);
 router.delete("/accounts/details/:idAccount/:idOffer", deleteAccountDetails);
 router.get("/accounts", listAccounts);
 router.get("/accounts/:id", getAccount);
+router.delete("/accounts/close/:id", closeAccount);
 router.delete("/accounts/:id", deleteAccount);
 
 export default router;

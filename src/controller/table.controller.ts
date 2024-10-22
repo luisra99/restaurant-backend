@@ -35,6 +35,7 @@ export const listTables = async (req: Request, res: Response) => {
       include: {
         Account: {
           include: { details: { include: { offer: true } }, _count: true },
+          where: { closed: { equals: null } },
         },
       },
     });
@@ -42,9 +43,9 @@ export const listTables = async (req: Request, res: Response) => {
       let amount = 0;
 
       // Si la mesa tiene una cuenta asociada
-      if (table.Account) {
+      if (table.Account[0]) {
         // Iterar sobre los detalles de la cuenta para calcular el total
-        amount = table.Account.details.reduce((total, detail) => {
+        amount = table.Account?.[0].details.reduce((total, detail) => {
           return total + detail.offer.price.toNumber() * detail.quantity;
         }, 0);
       }
@@ -53,11 +54,13 @@ export const listTables = async (req: Request, res: Response) => {
 
       return {
         ...table,
+        Account: table.Account[0],
         amount, // Total calculado para esta mesa
       };
     });
     res.status(200).json(response);
   } catch (error) {
+    console.log(error);
     const err = error as Error & { code?: string };
     const descripcionError = {
       message: "Error listando las mesas.",

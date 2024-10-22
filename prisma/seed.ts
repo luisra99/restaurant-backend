@@ -52,12 +52,21 @@ async function main() {
       details: "Tipos de divisas o monedas utilizadas en transacciones.",
       childConcept: {
         create: [
-          { denomination: "USD", details: "1.2" },
-          { denomination: "EUR", details: "1.1" },
-          { denomination: "MLC", details: "1.4" },
+          { denomination: "USD", details: "320" },
+          { denomination: "EUR", details: "330" },
+          { denomination: "MLC", details: "270" },
         ],
       },
     },
+  });
+  const mainConceptoRetiro = await prisma.concept.create({
+    data: {
+      denomination: "Concepto de retiro",
+      details: "Las disitintas formas de las que se retira dinero de la caja",
+    },
+  });
+  const conceptosRetiro = await prisma.concept.create({
+    data: { denomination: "Cambio", fatherId: mainConceptoRetiro.id },
   });
   const bebidas = await prisma.concept.create({
     data: {
@@ -178,19 +187,39 @@ async function main() {
       },
     ],
   });
-  const mainTaxesDiscounts = await prisma.taxDiscounts.createMany({
+  const mainDiscount = await prisma.taxDiscounts.create({
+    data: {
+      name: "Impuesto por servicio",
+      percent: 10,
+      tax: true,
+      status: true,
+    },
+  });
+  const seedDiscount = await prisma.taxDiscounts.create({
+    data: {
+      name: "Descuento por cumpleaño",
+      percent: 3,
+      tax: false,
+      status: false,
+    },
+  });
+  const mainDependent = await prisma.dependent.createMany({
     data: [
-      { name: "Impuesto por servicio", percent: 10, tax: true, status: true },
-      {
-        name: "Impuesto por servicio",
-        percent: 5.5,
-        tax: false,
-        status: false,
-      },
+      { name: "Adriana" },
+      { name: "Diego" },
+      { name: "Adans" },
+      { name: "Lucho" },
     ],
   });
   const mainTable = await prisma.table.create({
-    data: { name: "Mesa 1", details: "Vista al mar", capacity: 5 },
+    data: { name: "Mesa 1", details: "Vista al mar", capacity: 4 },
+  });
+  const tables = await prisma.table.createMany({
+    data: [
+      { name: "Mesa 2", details: "Terraza", capacity: 6 },
+      { name: "Mesa 3", details: "Balcón", capacity: 2 },
+      { name: "Mesa 4", details: "Reservado", capacity: 4 },
+    ],
   });
   const mainOffer = await prisma.offer.create({
     data: {
@@ -201,11 +230,37 @@ async function main() {
       idCategory: bebidas.id,
     },
   });
+  const offers = await prisma.offer.createMany({
+    data: [
+      {
+        name: "Pizza de queso",
+        description: "Queso Gouda",
+        price: 250,
+        idArea: cocina.id,
+        idCategory: entrantes.id,
+      },
+      {
+        name: "Refresco de Cola",
+        description: "Bebidas analcolicas",
+        price: 250,
+        idArea: barra.id,
+        idCategory: bebidas.id,
+      },
+      {
+        name: "Papas Fritas",
+        description: "Plato de papas precocidas",
+        price: 250,
+        idArea: cocina.id,
+        idCategory: entrantes.id,
+      },
+    ],
+  });
   const mainAccount = await prisma.account.create({
     data: {
       name: "Raul",
       description: "El informatico",
       people: 3,
+      taxDiscount: [mainDiscount.id],
       idTable: mainTable.id,
       details: { create: { quantity: 2, idOffer: mainOffer.id } },
     },

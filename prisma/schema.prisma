@@ -12,17 +12,19 @@ datasource db {
 }
 
 model Concept {
-  id            Int       @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   denomination  String
   details       String?
   fatherId      Int? // Relación opcional para permitir valores nulos
-  conceptFather Concept?  @relation("FatherConcept", fields: [fatherId], references: [id])
-  childConcept  Concept[] @relation("FatherConcept") // Relación inversa para los conceptos hijos
-  OfferArea     Offer[]   @relation(name: "OfferArea")
-  OfferCategory Offer[]   @relation(name: "OfferCategory")
+  conceptFather Concept?   @relation("FatherConcept", fields: [fatherId], references: [id])
+  childConcept  Concept[]  @relation("FatherConcept") // Relación inversa para los conceptos hijos
+  OfferArea     Offer[]    @relation(name: "OfferArea")
+  OfferCategory Offer[]    @relation(name: "OfferCategory")
   Account       Account[]
-  Type          Payment[] @relation(name: "TypePayment")
-  Payment       Payment[] @relation(name: "DivisaPayment")
+  Type          Payment[]  @relation(name: "TypePayment")
+  Payment       Payment[]  @relation(name: "DivisaPayment")
+  Divisa        Withdraw[] @relation(name: "DivisaWithdraw")
+  Withdraw      Withdraw[] @relation(name: "WithdrawConcept")
 }
 
 model TaxDiscounts {
@@ -53,7 +55,7 @@ model Table {
   capacity  Int
   details   String
   reserverd DateTime?
-  Account   Account?
+  Account   Account[]
 }
 
 model Dependent {
@@ -103,4 +105,14 @@ model Payment {
   divisa    Concept? @relation(name: "DivisaPayment", fields: [idDivisa], references: [id])
   type      Concept  @relation(name: "TypePayment", fields: [idMethod], references: [id])
   account   Account  @relation(fields: [idAccount], references: [id])
+}
+
+model Withdraw {
+  id         Int      @id @default(autoincrement())
+  idConcepto Int
+  idDivisa   Int?
+  amount     Decimal
+  date       DateTime @default(now())
+  divisa     Concept? @relation(name: "DivisaWithdraw", fields: [idDivisa], references: [id])
+  concept    Concept  @relation(name: "WithdrawConcept", fields: [idConcepto], references: [id])
 }

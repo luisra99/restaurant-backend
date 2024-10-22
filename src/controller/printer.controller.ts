@@ -2,96 +2,15 @@ import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { getDivisas } from "./divisa.controller";
 import { printAccount } from "../utils/print";
+import { getAccountFunction } from "../functions/account";
 
 const prisma = new PrismaClient();
 
 export const printRecip = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-
-    const account = await prisma.account.findFirst({
-      where: { id: Number(id) },
-      include: {
-        table: true,
-        details: { include: { offer: true } },
-        type: true,
-        dependent: true,
-      },
-    });
-    const orders = account?.details.map((detail) => {
-      return {
-        id: detail.offer.id,
-        name: detail.offer.name,
-        quantity: detail.quantity,
-        totalPrice: detail.quantity * Number(detail.offer.price), // Multiplica cantidad por precio
-      };
-    });
-    const divisas = await getDivisas();
-
-    // Calcular el total de todas las cantidades
-    const totalQuantity = orders?.reduce(
-      (sum, order) => sum + order.quantity,
-      0
-    );
-    // Calcular el total de todas las cantidades
-    // Calcular el precio total de todas las ofertas
-    const totalPrice =
-      orders?.reduce((sum, order) => sum + order.totalPrice, 0) ?? 0;
-
-    const taxsDiscounts = account?.taxDiscount.length
-      ? await prisma.taxDiscounts.findMany({
-          where: {
-            id: { in: account.taxDiscount },
-          },
-        })
-      : [];
-    // Calcular el precio final basado en los impuestos y descuentos
-    let finalPrice: number = totalPrice;
-    const mappedTaxsDiscounts = taxsDiscounts.map((item: any) => {
-      const amount = (item.percent / 100) * totalPrice;
-
-      // Si es impuesto, lo sumamos al precio final
-      if (item.tax) {
-        finalPrice += amount;
-      } else {
-        // Si es descuento, lo restamos del precio final
-        finalPrice -= amount;
-      }
-
-      // Devolvemos el objeto con el monto calculado
-      return {
-        ...item,
-        amount, // Monto calculado basado en el percent
-      };
-    });
-    const divisaAmount = divisas?.map((divisa: any) => {
-      return {
-        denomination: divisa.denomination,
-        amount: (
-          finalPrice / Number(parseFloat(divisa.details).toFixed(2))
-        ).toFixed(2),
-      };
-    });
-    printAccount({
-      ...account,
-      mappedTaxsDiscounts,
-      orders,
-      totalQuantity,
-      totalPrice,
-      finalPrice,
-      divisaAmount,
-      dependent: account?.dependent?.name,
-    });
-    res.status(200).json({
-      ...account,
-      mappedTaxsDiscounts,
-      orders,
-      totalQuantity,
-      totalPrice,
-      finalPrice,
-      divisaAmount,
-      dependent: account?.dependent?.name,
-    });
+    const account = await getAccountFunction(req.params);
+    printAccount(account);
+    res.status(200).json(account);
   } catch (error) {
     const err = error as Error & { code?: string };
 
@@ -163,7 +82,6 @@ export const printAreas = async (req: Request, res: Response) => {
     res.status(500).json(descripcionError);
   }
 };
-
 export const printStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
