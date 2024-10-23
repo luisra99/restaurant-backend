@@ -4,10 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "set NODE_ENV=development&& ts-node-dev --respawn src/index.ts",
+    "dev": "ts-node-dev --respawn src/index.ts",
     "migrate": "npx prisma migrate dev",
     "init": "npx prisma generate && npx prisma migrate dev",
-    "studio": "npx prisma studio"
+    "studio": "npx prisma studio",
+    "build": "tsc",
+    "minify": "terser dist/src/**/*.js -o dist/minified.js",
+    "start": "node dist/src/index.js",
+    "start:prod": "npm run build && npm run start"
   },
   "prisma": {
     "seed": "ts-node ./prisma/seed.ts"
@@ -27,12 +31,14 @@
     "@types/node": "^20.11.5",
     "@types/nodemailer": "^6.4.14",
     "prisma": "^5.8.1",
+    "terser": "^5.36.0",
     "typescript": "^5.3.3"
   },
   "dependencies": {
     "@prisma/client": "^5.8.1",
     "@tillpos/xml-escpos-helper": "^0.3.1",
     "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
