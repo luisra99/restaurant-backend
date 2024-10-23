@@ -18,6 +18,9 @@ export const createTable = async (req: Request, res: Response) => {
 
     res.status(201).json(newTable);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "createTable", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     const descripcionError = {
       message: "Error creando la mesa.",
@@ -60,6 +63,9 @@ export const listTables = async (req: Request, res: Response) => {
     });
     res.status(200).json(response);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "listTables", error: JSON.stringify(error) },
+    });
     console.log(error);
     const err = error as Error & { code?: string };
     const descripcionError = {
@@ -87,6 +93,9 @@ export const getTable = async (req: Request, res: Response) => {
 
     res.status(200).json(table);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "getTable", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     const descripcionError = {
       message: "Error listando las mesas.",
@@ -114,6 +123,9 @@ export const updateTable = async (req: Request, res: Response) => {
 
     res.status(200).json(updatedTable);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "updateTable", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     const descripcionError = {
       message: "Error modificando la mesa.",
@@ -135,6 +147,9 @@ export const deleteTable = async (req: Request, res: Response) => {
 
     res.status(200).json(deletedTable);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "deleteTable", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     const descripcionError = {
       message: "Error eliminando la mesa.",

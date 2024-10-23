@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { getAllAccountsFunction } from "../functions/account";
+import { print } from "../libs/escpos";
+import { xmlEstadoCaja } from "../utils/escpos.templates";
 
 const prisma = new PrismaClient();
 
@@ -18,11 +20,13 @@ export const operatorInform = async (req: Request, res: Response) => {
 
       cuenta.mappedTaxsDiscounts.map((taxDiscount: any) => {
         if (taxDiscount.tax) {
-          impuestos[taxDiscount.name] =
-            (impuestos[taxDiscount.name] ?? 0) + taxDiscount.amount;
+          impuestos[`${taxDiscount.name} (${taxDiscount.percent}%)`] =
+            (impuestos[`${taxDiscount.name} (${taxDiscount.percent}%)`] ?? 0) +
+            taxDiscount.amount;
         } else {
-          descuentos[taxDiscount.name] =
-            (descuentos[taxDiscount.name] ?? 0) + taxDiscount.amount;
+          descuentos[`${taxDiscount.name} (${taxDiscount.percent}%)`] =
+            (descuentos[`${taxDiscount.name} (${taxDiscount.percent}%)`] ?? 0) +
+            taxDiscount.amount;
         }
       });
     });
@@ -49,12 +53,14 @@ export const operatorInform = async (req: Request, res: Response) => {
       console.log(payment.divisa?.denomination);
       efectivo[payment.divisa?.denomination ?? "CUP"] =
         (efectivo[payment.divisa?.denomination ?? "CUP"] ?? 0) +
-        Number(payment.amount);
+        Number(payment.amount) /
+          (payment.divisa?.details ? Number(payment.divisa?.details) : 1);
     });
     transferPayments.map((payment) => {
       transferencia[payment.divisa?.denomination ?? "CUP"] =
         (transferencia[payment.divisa?.denomination ?? "CUP"] ?? 0) +
-        Number(payment.amount);
+        Number(payment.amount) /
+          (payment.divisa?.details ? Number(payment.divisa?.details) : 1);
     });
     withdraws.map((withdraw) => {
       extracciones[withdraw.concept.denomination] =
@@ -64,18 +70,38 @@ export const operatorInform = async (req: Request, res: Response) => {
     //#endregion
     //#region Calculado en caja
     //#endregion
-
-    res
-      .status(201)
-      .json({
+    efectivo.CUP -= extracciones["Cambio"] ?? 0;
+    print(
+      {
         ventaBruta,
         impuestos,
         descuentos,
         efectivo,
         transferencia,
         extracciones,
-      });
+      },
+      xmlEstadoCaja
+    );
+    console.log({
+      ventaBruta,
+      impuestos,
+      descuentos,
+      efectivo,
+      transferencia,
+      extracciones,
+    });
+    res.status(201).json({
+      ventaBruta,
+      impuestos,
+      descuentos,
+      efectivo,
+      transferencia,
+      extracciones,
+    });
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "operatorInform", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {

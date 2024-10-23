@@ -12,6 +12,9 @@ export const listDependents = async (
     const dependents = await prisma.dependent.findMany();
     res.status(200).json(dependents);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "listDependents", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -35,6 +38,9 @@ export const getDependentById = async (
 
     res.status(200).json(dependent);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "getDependentById", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -60,6 +66,9 @@ export const createDependent = async (
 
     res.status(201).json(newDependent);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "createDependent", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -87,6 +96,9 @@ export const updateDependent = async (
 
     res.status(200).json(updatedDependent);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "updateDependent", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -105,6 +117,9 @@ export const deleteDependent = async (
 
     res.status(200).json({ message: "Dependiente eliminado correctamente." });
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "deleteDependent", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };

@@ -32,5 +32,6 @@ export const printAccount = (account: any) => {
       }
     ),
   };
+  console.log(cuenta);
   print(cuenta, xmlVenta);
 };

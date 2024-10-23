@@ -39,6 +39,9 @@ export const openAccount = async (req: Request, res: Response) => {
       res.status(201).json(newAccount);
     }
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "openAccount", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     console.error(error);
     const descripcionError = {
@@ -78,6 +81,9 @@ export const modifyAccountDetails = async (req: Request, res: Response) => {
     }
     res.status(201).json(response);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "modifyAccountDetails", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     console.error(error);
     const descripcionError = {
@@ -99,6 +105,9 @@ export const modifyAccount = async (req: Request, res: Response) => {
     });
     res.status(201).json(account);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "modifyAccount", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     console.error(error);
     const descripcionError = {
@@ -123,6 +132,9 @@ export const deleteAccountDetails = async (req: Request, res: Response) => {
 
     res.status(201).json(response);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "deleteAccountDetails", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     console.error(error);
     const descripcionError = {
@@ -140,6 +152,9 @@ export const getAccount = async (req: Request, res: Response) => {
     const account = await getAccountFunction(req.params);
     res.status(200).json(account);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "getAccount", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {
@@ -163,6 +178,9 @@ export const listAccounts = async (req: Request, res: Response) => {
 
     res.status(200).json(accounts);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "listAccounts", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {
@@ -185,6 +203,9 @@ export const deleteAccount = async (req: Request, res: Response) => {
 
     res.status(200).json(deletedConcept);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "deleteAccount", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     console.log(error);
     const descripcionError = {
@@ -211,6 +232,9 @@ export const findConceptsByFather = async (req: Request, res: Response) => {
 
     res.status(200).json(concepts);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "findConceptsByFather", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {
@@ -246,6 +270,9 @@ export const closeAccount = async (req: Request, res: Response) => {
 
     res.status(200).json(closeAccount);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "closeAccount", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     console.log(error);
     const descripcionError = {

@@ -33,6 +33,9 @@ export const createOffer = async (req: Request, res: Response) => {
 
     res.status(201).json(newOffer);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "createOffer", error: JSON.stringify(error) },
+    });
     if (req.file) {
       deleteOldImage(req.file.path); // Elimina la imagen si ocurre un error
     }
@@ -87,6 +90,9 @@ export const updateOffer = async (req: Request, res: Response) => {
 
     res.status(200).json(updatedOffer);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "updateOffer", error: JSON.stringify(error) },
+    });
     if (req.file) {
       deleteOldImage(req.file.path); // Elimina la imagen si ocurre un error
     }
@@ -114,6 +120,9 @@ export const listOffers = async (req: Request, res: Response) => {
 
     res.status(200).json(offers);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "listOffer", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     const descripcionError = {
       message: "Error listando las ofertas.",
@@ -127,13 +136,16 @@ export const listOffers = async (req: Request, res: Response) => {
 // Obtener oferta
 export const getOffer = async (req: Request, res: Response) => {
   try {
-    const {id} =req.params
+    const { id } = req.params;
     const offers = await prisma.offer.findFirst({
-      where:{id:Number(id)}
+      where: { id: Number(id) },
     });
 
     res.status(200).json(offers);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "getOffer", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     const descripcionError = {
       message: "Error listando las ofertas.",
@@ -156,6 +168,9 @@ export const deleteOffer = async (req: Request, res: Response) => {
 
     res.status(200).json(deletedOffer);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "deleteOffer", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     const descripcionError = {
       message: "Error eliminando la oferta.",
@@ -178,6 +193,9 @@ export const findOffersByArea = async (req: Request, res: Response) => {
 
     res.status(200).json(offers);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "findOffersByArea", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     const descripcionError = {
       message: "Error buscando ofertas por área.",
@@ -200,6 +218,9 @@ export const findOffersByCategory = async (req: Request, res: Response) => {
 
     res.status(200).json(offers);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "findOffersByCategory", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     const descripcionError = {
       message: "Error buscando ofertas por categoría.",
@@ -227,6 +248,9 @@ export const findOffersByPriceRange = async (req: Request, res: Response) => {
 
     res.status(200).json(offers);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "findOffersByPriceRange", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     const descripcionError = {
       message: "Error buscando ofertas por rango de precios.",
@@ -257,6 +281,9 @@ export const searchOffers = async (req: Request, res: Response) => {
 
     res.status(200).json(offers);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "searchOffers", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
     const descripcionError = {
       message: "Error buscando ofertas.",

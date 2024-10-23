@@ -18,6 +18,9 @@ export const createConcept = async (req: Request, res: Response) => {
 
     res.status(201).json(newConcept);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "createConcept", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {
@@ -42,6 +45,9 @@ export const listConcepts = async (req: Request, res: Response) => {
 
     res.status(200).json(concepts);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "listConcepts", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {
@@ -72,6 +78,9 @@ export const getConcept = async (req: Request, res: Response) => {
 
     res.status(200).json(concept);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "getConcept", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {
@@ -113,6 +122,9 @@ export const getConceptByDenomination = async (req: Request, res: Response) => {
 
     res.status(200).json(childConcepts);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "getConceptByDenomination", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {
@@ -142,6 +154,9 @@ export const updateConcept = async (req: Request, res: Response) => {
 
     res.status(200).json(updatedConcept);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "updateConcept", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {
@@ -165,6 +180,9 @@ export const deleteConcept = async (req: Request, res: Response) => {
 
     res.status(200).json(deletedConcept);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "deleteConcept", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {
@@ -192,6 +210,9 @@ export const findConceptsByFather = async (req: Request, res: Response) => {
 
     res.status(200).json(concepts);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "findConceptByFather", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {

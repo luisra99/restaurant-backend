@@ -1,6 +1,11 @@
 import {
+  formatAreaProduct,
+  formatAreas,
+  formatCurrency,
+  formatMoney,
   formatProducts,
   formatTaxes,
+  formatTaxesStatus,
   padBackString,
   padFrontString,
 } from "./escpos.format";
@@ -9,10 +14,14 @@ export const xmlVenta = (cuenta: any) => `<?xml version="1.0" encoding="UTF-8"?>
 <document>
       <align mode="left">
         <text-line>${cuenta.table}</text-line>
-        <text-line>Dependiente: ${cuenta.dependent}</text-line>
+        <text-line>Dependiente: ${cuenta.dependent ?? "Sin asignar"}</text-line>
         <text-line>Personas: ${cuenta.people}</text-line>
-        <text-line>Fecha: ${cuenta.initDate}</text-line>
-        <text-line>Hora: ${cuenta.initTime}</text-line>
+        <text-line>Fecha: ${cuenta.initDate.toLocaleDateString(
+          "es-ES"
+        )}</text-line>
+        <text-line>Hora: ${cuenta.initTime.toLocaleTimeString(
+          "es-ES"
+        )}</text-line>
     </align>
     <align mode="center">
         <text-line size="0:0">- - - - - - - - - - - - - - - -</text-line>
@@ -25,7 +34,7 @@ export const xmlVenta = (cuenta: any) => `<?xml version="1.0" encoding="UTF-8"?>
     </align>
      <align mode="left">
      <text-line>SUBTOTAL:           $${padFrontString(
-       cuenta.subTotal,
+       cuenta.subTotal.toFixed(2),
        11
      )}</text-line>
         <bold>
@@ -50,32 +59,107 @@ export const xmlVenta = (cuenta: any) => `<?xml version="1.0" encoding="UTF-8"?>
     </align>
     <align mode="center">
     <bold>
-        <text-line size="1:1">$ ${cuenta.toPay} CUP</text-line></bold>
+        <text-line size="1:1">$ ${cuenta.toPay.toFixed(
+          2
+        )} CUP</text-line></bold>
     </align>
     <align mode="center">
         <text-line size="0:0">- - - - - - - - - - - - - - - -</text-line>
     </align>
     <align mode="left">
-    ${cuenta.currency.map(({ name, amount }: any) => {
-      const text = `A pagan en ${name}`;
-      return `<text-line>${padBackString(text, 20)}$${padFrontString(
-        amount,
-        11
-      )}</text-line>`;
-    })}
+   ${formatCurrency(cuenta.currency)}
+</document>
+`;
+export const xmlVentaArea = (
+  areas: any
+) => `<?xml version="1.0" encoding="UTF-8"?>
+<document>
+      <align mode="left">
+        <text-line>VENTAS POR AREA</text-line>
+        <text-line>Fecha: ${new Date(Date.now()).toLocaleDateString(
+          "es-ES"
+        )}</text-line>
+        <text-line>Hora: ${new Date(Date.now()).toLocaleTimeString(
+          "es-ES"
+        )}</text-line>
     </align>
-    <line-feed />
-    <line-feed />
+    <align mode="center">
+        <text-line size="0:0">- - - - - - - - - - - - - - - -</text-line>
+    </align>
+    ${formatAreas(areas)}
 </document>
 `;
 export const xmlEstadoCaja = (
+  inform: any
+) => `<?xml version="1.0" encoding="UTF-8"?>
+<document>
+      <align mode="left">
+        <text-line>REPORTE DE CAJA</text-line>
+        <text-line>FECHA: ${new Date(Date.now()).toLocaleDateString(
+          "es-ES"
+        )}</text-line>
+        <text-line>HORA: ${new Date(Date.now()).toLocaleTimeString(
+          "es-ES"
+        )}</text-line>
+    </align>
+    <align mode="center">
+        <text-line size="0:0">- - - - - - - - - - - - - - - -</text-line>
+    </align>
+    <align mode="left">
+     <text-line>Saldo inicial:      $${padFrontString(
+       //inform.saldoInicial.toFixed(2),
+       "400.00",
+       11
+     )}</text-line>
+     <text-line>Ingreso total:      $${padFrontString(
+       //inform.saldoInicial.toFixed(2),
+       "400.00",
+       11
+     )}</text-line>
+     <align mode="center">
+        <text-line size="0:0">-  - - - - - - -</text-line>
+    </align>
+  <text-line>De ello...</text-line>
+     <text-line>-Venta bruta:       $${padFrontString(
+       inform.ventaBruta.toFixed(2),
+       11
+     )}</text-line>
+     ${formatTaxesStatus(inform.impuestos)}
+    <text-line>-Propina:           $${padFrontString(
+      inform.ventaBruta.toFixed(2),
+      11
+    )}</text-line>
+    <align mode="center">
+        <text-line size="0:0">-  - - - - - - -</text-line>
+    </align>
+     <text-line>Descuentos:</text-line>
+     ${
+       Object.values(inform.descuentos).length
+         ? formatTaxesStatus(inform.impuestos)
+         : `<text-line>No se hizo ningun descuento</text-line>`
+     }
+     <align mode="center">
+        <text-line size="0:0">-  - - - - - - -</text-line>
+    </align>
+    <text-line>Efectivo en caja:</text-line>
+${formatMoney(inform.efectivo)}
+<text-line>Montos en transferencia:</text-line>
+${formatMoney(inform.transferencia)}
+    </align>
+</document>
+`;
+export const xmlEstadoCaja2 = (
   cuenta: any
 ) => `<?xml version="1.0" encoding="UTF-8"?>
 <document>
       <align mode="left">
-      <text-line>Fecha: ${cuenta.initDate}</text-line>
-      <text-line>Hora: ${cuenta.initTime}</text-line>
-      <text-line>Área: ${cuenta.dependent}</text-line>
+      <text-line>Fecha: ${cuenta.initDate.toLocaleDateString(
+        "es-ES"
+      )}</text-line>
+      <text-line>Hora: ${cuenta.initTime.toLocaleTimeString(
+        "es-ES"
+      )}</text-line>
+      <text-line>Área: ${cuenta.dependent ?? "Sin definir"}</text-line>
     </align>
     <align mode="center">
         <text-line size="0:0">- - - - - - - - - - - - - - - -</text-line>

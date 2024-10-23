@@ -21,6 +21,9 @@ export const getDivisas = async () => {
     });
     return divisas;
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "getDivisas", error: JSON.stringify(error) },
+    });
     console.log({ error: (error as Error).message });
     return;
   }
@@ -34,6 +37,9 @@ export const listDivisas = async (
     const divisas = await getDivisas();
     res.status(200).json(divisas);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "listDivisas", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -57,6 +63,9 @@ export const getDivisaById = async (
 
     res.status(200).json(divisa);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "getDivisaById", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -87,6 +96,9 @@ export const createDivisa = async (
 
     res.status(201).json(newDivisa);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "createDivisa", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -110,6 +122,9 @@ export const updateDivisa = async (
 
     res.status(200).json(updatedDivisa);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "updateDivisa", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -128,6 +143,9 @@ export const deleteDivisa = async (
 
     res.status(200).json({ message: "Divisa eliminada correctamente." });
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "deleteDivisa", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };

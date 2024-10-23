@@ -12,6 +12,9 @@ export const listTaxDiscounts = async (
     const taxDiscounts = await prisma.taxDiscounts.findMany();
     res.status(200).json(taxDiscounts);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "listTaxDiscounts", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -35,6 +38,9 @@ export const getTaxDiscountById = async (
 
     res.status(200).json(taxDiscount);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "getTaxDiscountById", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -64,6 +70,9 @@ export const alterTaxDiscount = async (
 
     res.status(200).json(taxDiscount);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "alterTaxDiscount", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -93,6 +102,9 @@ export const createTaxDiscount = async (
 
     res.status(201).json(newTaxDiscount);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "createTaxDiscount", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -124,6 +136,9 @@ export const updateTaxDiscount = async (
 
     res.status(200).json(updatedTaxDiscount);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "updateTaxDiscount", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };
@@ -142,6 +157,9 @@ export const deleteTaxDiscount = async (
 
     res.status(200).json({ message: "Tax/Discount eliminado correctamente." });
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "deleteTaxDiscount", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: (error as Error).message });
   }
 };

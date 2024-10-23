@@ -8,7 +8,9 @@ import DependentRoute from "./routes/dependent.route";
 import TaxDiscountsRoute from "./routes/taxDiscount.route";
 import PrinterRoute from "./routes/printer.route";
 import PaymentRoute from "./routes/payments.route";
+import OperatorRoute from "./routes/operator.route";
 
+app.use(OperatorRoute);
 app.use(PaymentRoute);
 app.use(ConceptRoute);
 app.use(OfferRoute);

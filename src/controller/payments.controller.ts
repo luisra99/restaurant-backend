@@ -45,6 +45,9 @@ export const pay = async (req: Request, res: Response) => {
 
     res.status(201).json(payment);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "pay", error: JSON.stringify(error) },
+    });
     console.log(error);
     res.status(500).json({ error: "Error al registrar el pago." });
   }
@@ -63,6 +66,9 @@ export const getPayments = async (req: Request, res: Response) => {
     });
     res.json(payments);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "getPayments", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: "Error al obtener los pagos." });
   }
 };
@@ -80,6 +86,9 @@ export const deletePayments = async (req: Request, res: Response) => {
     });
     res.status(204).send();
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "deletePayments", error: JSON.stringify(error) },
+    });
     res.status(500).json({ error: "Error al eliminar los pagos." });
   }
 };

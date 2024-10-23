@@ -3,6 +3,8 @@ import { PrismaClient } from "@prisma/client";
 import { getDivisas } from "./divisa.controller";
 import { printAccount } from "../utils/print";
 import { getAccountFunction } from "../functions/account";
+import { print } from "../libs/escpos";
+import { xmlVentaArea } from "../utils/escpos.templates";
 
 const prisma = new PrismaClient();
 
@@ -12,6 +14,10 @@ export const printRecip = async (req: Request, res: Response) => {
     printAccount(account);
     res.status(200).json(account);
   } catch (error) {
+    console.log(error);
+    prisma.errorLogs.create({
+      data: { info: "printRecip", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {
@@ -68,9 +74,12 @@ export const printAreas = async (req: Request, res: Response) => {
       acc[key].push(current); // Agrega el elemento al array correspondiente
       return acc;
     }, {});
-
+    print(groupedByArea, xmlVentaArea);
     res.status(200).json(groupedByArea);
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "printAreas", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {
@@ -158,6 +167,9 @@ export const printStatus = async (req: Request, res: Response) => {
       divisaAmount,
     });
   } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "printStatus", error: JSON.stringify(error) },
+    });
     const err = error as Error & { code?: string };
 
     const descripcionError = {

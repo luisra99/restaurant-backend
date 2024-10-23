@@ -59,18 +59,19 @@ model Table {
 }
 
 model Dependent {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
   Account   Account[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Operator  Operator[]
 }
 
 model Account {
   id          Int              @id @default(autoincrement())
   name        String
   description String?
-  idTable     Int?             @unique
+  idTable     Int?
   idType      Int              @default(13)
   people      Int?
   idDependent Int?
@@ -115,4 +116,18 @@ model Withdraw {
   date       DateTime @default(now())
   divisa     Concept? @relation(name: "DivisaWithdraw", fields: [idDivisa], references: [id])
   concept    Concept  @relation(name: "WithdrawConcept", fields: [idConcepto], references: [id])
+}
+
+model Operator {
+  id          Int        @id @default(autoincrement())
+  initialCash Decimal?
+  finalCash   Decimal?
+  idOperator  Int?
+  dependent   Dependent? @relation(fields: [idOperator], references: [id])
+}
+
+model ErrorLogs {
+  id    DateTime @id @default(now())
+  info  String?
+  error String?
 }
