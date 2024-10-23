@@ -37,7 +37,15 @@ export const listTables = async (req: Request, res: Response) => {
     const tables = await prisma.table.findMany({
       include: {
         Account: {
-          include: { details: { include: { offer: true } }, _count: true },
+          include: {
+            details: {
+              include: {
+                offer: true,
+              },
+            },
+            dependent: true,
+            _count: true,
+          },
           where: { closed: { equals: null } },
         },
       },
