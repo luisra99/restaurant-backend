@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
-import { Prisma, PrismaClient } from "@prisma/client";
-import { getDivisas } from "./divisa.controller";
+import { PrismaClient } from "@prisma/client";
 import { getAccountFunction } from "../functions/account";
 const prisma = new PrismaClient();
 
@@ -9,7 +8,9 @@ export const openAccount = async (req: Request, res: Response) => {
   try {
     const { name, description, people, idDependent, idTable, idType, details } =
       req.body;
-
+    const accountDefaultConcept = await prisma.concept.findFirst({
+      where: { denomination: "Cuenta local" },
+    });
     const activeTaxDiscounts = await prisma.taxDiscounts.findMany({
       where: {
         status: true,
@@ -25,6 +26,8 @@ export const openAccount = async (req: Request, res: Response) => {
     if (openAccountsTables.length > 0) {
       res.status(200).json({ messaje: "La mesa esta ocupada" });
     } else {
+      if (idType || accountDefaultConcept) {
+      }
       const newAccount = await prisma.account.create({
         data: {
           name,
@@ -32,7 +35,7 @@ export const openAccount = async (req: Request, res: Response) => {
           description,
           idDependent,
           idTable,
-          idType: idType ? Number(idType) : undefined,
+          idType: idType ? Number(idType) : accountDefaultConcept?.id ?? 0,
           taxDiscount: activeTaxDiscounts.map((tax) => tax.id),
         },
       });

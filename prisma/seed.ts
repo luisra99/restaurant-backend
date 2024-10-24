@@ -116,25 +116,30 @@ async function main() {
     },
   });
 
-  const mainTipoCuenta = await prisma.concept.createMany({
-    data: [
-      {
-        denomination: "Cuenta local",
-        details: "Variedad de bebidas",
-        fatherId: tipoCuenta.id,
-      },
-      {
-        denomination: "Para llevar",
-        details: "Pequeñas porciones para empezar",
-        fatherId: tipoCuenta.id,
-      },
-      {
-        denomination: "Cuenta casa",
-        details: "Deliciosas opciones líquidas",
-        fatherId: tipoCuenta.id,
-      },
-    ],
+  const mainTipoCuentaLocal = await prisma.concept.create({
+    data: {
+      denomination: "Cuenta local",
+      details: "Variedad de bebidas",
+      fatherId: tipoCuenta.id,
+    },
   });
+
+  const mainTipoCuentaCasa = await prisma.concept.create({
+    data: {
+      denomination: "Cuenta casa",
+      details: "Deliciosas opciones líquidas",
+      fatherId: tipoCuenta.id,
+    },
+  });
+
+  const mainTipoCuentaParaLlevar = await prisma.concept.create({
+    data: {
+      denomination: "Cuenta local",
+      details: "Variedad de bebidas",
+      fatherId: tipoCuenta.id,
+    },
+  });
+
   const barra = await prisma.concept.create({
     data: {
       denomination: "Barra",
@@ -262,6 +267,7 @@ async function main() {
       people: 3,
       taxDiscount: [mainDiscount.id],
       idTable: mainTable.id,
+      idType: mainTipoCuentaLocal.id,
       details: { create: { quantity: 2, idOffer: mainOffer.id } },
     },
   });
