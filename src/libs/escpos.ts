@@ -17,7 +17,7 @@ export const print = (data: any, model: any) => {
 
 function imprimir(buffer: any) {
   const devices = escpos.USB.findPrinter();
-  // console.log(devices);
+  console.log(devices);
   const device = usb.findByIds(4070, 33054);
   if (device) {
     device.open();

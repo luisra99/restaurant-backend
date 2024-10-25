@@ -18,11 +18,8 @@ export const operatorInform = async (req: Request, res: Response) => {
     const cuentas = await getAllAccountsFunction();
     cuentas.forEach((cuenta) => {
       ventaBruta += cuenta.totalPrice;
-      ingresoTotal += cuenta.totalPrice;
       cuenta.mappedTaxsDiscounts.map((taxDiscount: any) => {
         if (taxDiscount.tax) {
-          ingresoTotal += taxDiscount.amount;
-
           impuestos[`${taxDiscount.name} (${taxDiscount.percent}%)`] =
             (impuestos[`${taxDiscount.name} (${taxDiscount.percent}%)`] ?? 0) +
             taxDiscount.amount;
@@ -38,6 +35,12 @@ export const operatorInform = async (req: Request, res: Response) => {
     let efectivo: any = {};
     let transferencia: any = {};
     let extracciones: any = {};
+    const payments = await prisma.payment.findMany({
+      include: { divisa: true },
+    });
+    const withdraws = await prisma.withdraw.findMany({
+      include: { concept: true },
+    });
     const cashPayments = await prisma.payment.findMany({
       include: { divisa: true },
       where: { type: { denomination: { equals: "Efectivo" } } },
@@ -46,15 +49,13 @@ export const operatorInform = async (req: Request, res: Response) => {
       include: { divisa: true },
       where: { type: { denomination: { equals: "Transferencia" } } },
     });
-    const withdraws = await prisma.withdraw.findMany({
-      include: { concept: true },
-    });
+
     const income = await prisma.income.findMany({
       include: { concept: true },
     });
-
-    console.log("Cash", cashPayments);
-    console.log("Transfer", transferPayments);
+    payments.map((payment) => {
+      ingresoTotal += Number(payment.amount);
+    });
     cashPayments.map((payment) => {
       efectivo["CUP"] = (efectivo["CUP"] ?? 0) + Number(payment.amount);
     });
@@ -78,19 +79,23 @@ export const operatorInform = async (req: Request, res: Response) => {
     //#region Calculado en caja
     //#endregion
     ingresoTotal += propina;
-    efectivo.CUP = (efectivo.CUP ?? 0) - (extracciones["Cambio"] ?? 0);
+    efectivo.CUP =
+      (efectivo.CUP ?? 0) -
+      (extracciones["Cambio"] ?? 0) +
+      Number(initialCash ?? 0) +
+      propina;
     print(
       {
         ventaBruta,
         ingresoTotal,
-        initialCash,
+        initialCash: initialCash ?? 0,
         propina,
         impuestos,
         descuentos,
         efectivo,
         transferencia,
         extracciones,
-        balance: ingresoTotal + Number(initialCash),
+        balance: ingresoTotal + Number(initialCash ?? 0),
       },
       xmlEstadoCaja
     );

@@ -1,11 +1,11 @@
 export function padFrontString(input: any, pad: number) {
-  while (input.toString().length < pad) {
+  while (input?.toString().length < pad) {
     input = " " + input; // Añade un espacio al principio
   }
   return input;
 }
 export function padBackString(input: any, pad: number) {
-  while (input.toString().length < pad) {
+  while (input?.toString().length < pad) {
     input = input + " "; // Añade un espacio al principio
   }
   return input;

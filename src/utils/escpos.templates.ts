@@ -106,11 +106,11 @@ export const xmlEstadoCaja = (
     </align>
     <align mode="left">
      <text-line>Saldo inicial:      $${padFrontString(
-       inform.initialCash.toFixed(2),
+       inform.initialCash?.toFixed(2),
        11
      )}</text-line>
      <text-line>Ingreso total:      $${padFrontString(
-       inform.ingresoTotal.toFixed(2),
+       inform.ingresoTotal?.toFixed(2),
        11
      )}</text-line>
      <align mode="center">
@@ -118,12 +118,12 @@ export const xmlEstadoCaja = (
     </align>
   <text-line>De ello...</text-line>
      <text-line>-Venta bruta:       $${padFrontString(
-       inform.ventaBruta.toFixed(2),
+       inform.ventaBruta?.toFixed(2),
        11
      )}</text-line>
      ${formatTaxesStatus(inform.impuestos)}
     <text-line>-Propina:           $${padFrontString(
-      inform.propina.toFixed(2),
+      inform.propina?.toFixed(2),
       11
     )}</text-line>
 
@@ -139,7 +139,7 @@ ${formatMoney(inform.transferencia ?? 0)}
         <text-line size="0:0">-  - - - - - - -</text-line>
     </align>
     <text-line>Balance:            $${padFrontString(
-      inform.balance.toFixed(2),
+      inform.balance?.toFixed(2),
       11
     )}</text-line>
 </document>

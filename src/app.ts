@@ -4,7 +4,6 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import * as dotenv from "dotenv";
 import path from "path";
-const compression = require("compression");
 
 dotenv.config();
 const app = express();
@@ -14,7 +13,6 @@ app.use(
     credentials: true,
   })
 );
-app.use(compression());
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(cookieParser());
