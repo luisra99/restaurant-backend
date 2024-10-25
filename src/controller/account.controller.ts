@@ -109,6 +109,61 @@ export const modifyAccount = async (req: Request, res: Response) => {
     res.status(500).json(descripcionError);
   }
 };
+// Modificar pedidos de la cuenta
+export const deleteTax = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const account = await prisma.account.update({
+      where: { id: Number(id) },
+      data: { taxDiscount: [] },
+    });
+    res.status(201).json(account);
+  } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "modifyAccount", error: JSON.stringify(error) },
+    });
+    const err = error as Error & { code?: string };
+    console.error(error);
+    const descripcionError = {
+      message: "Ha ocurrido un error creando el concepto.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
+// Modificar pedidos de la cuenta
+export const addTax = async (req: Request, res: Response) => {
+  try {
+    const tax = await prisma.taxDiscounts.findFirst({
+      where: { name: "Impuesto por servicio" },
+    });
+    const { id } = req.params;
+    if (tax) {
+      const account = await prisma.account.update({
+        where: { id: Number(id) },
+        data: { taxDiscount: [tax?.id] },
+      });
+      res.status(201).json(account);
+    } else {
+      res.status(201).json({ messaje: "No se encontro el impuesto" });
+    }
+  } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "modifyAccount", error: JSON.stringify(error) },
+    });
+    const err = error as Error & { code?: string };
+    console.error(error);
+    const descripcionError = {
+      message: "Ha ocurrido un error creando el concepto.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
 // Eliminar pedidos de la cuenta
 export const deleteAccountDetails = async (req: Request, res: Response) => {
   try {

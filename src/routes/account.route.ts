@@ -8,6 +8,8 @@ import {
   modifyAccount,
   deleteAccount,
   closeAccount,
+  deleteTax,
+  addTax,
 } from "../controller/account.controller";
 
 const router = Router();
@@ -20,5 +22,7 @@ router.get("/accounts", listAccounts);
 router.get("/accounts/:id", getAccount);
 router.delete("/accounts/close/:id", closeAccount);
 router.delete("/accounts/:id", deleteAccount);
+router.delete("/accounts/tax/:id", deleteTax);
+router.post("/accounts/tax/:id", addTax);
 
 export default router;
