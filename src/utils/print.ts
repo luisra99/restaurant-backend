@@ -1,7 +1,12 @@
 import { print } from "../libs/escpos";
 import { xmlVenta } from "./escpos.templates";
-
-export const printAccount = (account: any) => {
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+export const printAccount = async (account: any) => {
+  const conceptoCasa = await prisma.concept.findFirst({
+    where: { denomination: "Cuenta casa" },
+  });
+  if (Number(account.idType) == conceptoCasa?.id) account.finalPrice = 0;
   const cuenta = {
     table: account?.table?.name ?? "",
     location: account?.table?.details ?? "",
