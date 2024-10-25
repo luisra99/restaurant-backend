@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import fs from "fs";
-import path from "path";
 
 const prisma = new PrismaClient();
 
@@ -116,6 +115,7 @@ export const listOffers = async (req: Request, res: Response) => {
         category: true,
         area: true,
       },
+      orderBy: { name: "asc" },
     });
 
     res.status(200).json(offers);
