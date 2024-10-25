@@ -1,5 +1,4 @@
 import {
-  formatAreaProduct,
   formatAreas,
   formatCurrency,
   formatMoney,
@@ -107,13 +106,11 @@ export const xmlEstadoCaja = (
     </align>
     <align mode="left">
      <text-line>Saldo inicial:      $${padFrontString(
-       //inform.saldoInicial.toFixed(2),
-       "400.00",
+       inform.initialCash.toFixed(2),
        11
      )}</text-line>
      <text-line>Ingreso total:      $${padFrontString(
-       //inform.saldoInicial.toFixed(2),
-       "400.00",
+       inform.ingresoTotal.toFixed(2),
        11
      )}</text-line>
      <align mode="center">
@@ -126,26 +123,25 @@ export const xmlEstadoCaja = (
      )}</text-line>
      ${formatTaxesStatus(inform.impuestos)}
     <text-line>-Propina:           $${padFrontString(
-      inform.ventaBruta.toFixed(2),
+      inform.propina.toFixed(2),
       11
     )}</text-line>
-    <align mode="center">
-        <text-line size="0:0">-  - - - - - - -</text-line>
-    </align>
-     <text-line>Descuentos:</text-line>
-     ${
-       Object.values(inform.descuentos).length
-         ? formatTaxesStatus(inform.impuestos)
-         : `<text-line>No se hizo ningun descuento</text-line>`
-     }
+
      <align mode="center">
         <text-line size="0:0">-  - - - - - - -</text-line>
     </align>
     <text-line>Efectivo en caja:</text-line>
 ${formatMoney(inform.efectivo)}
 <text-line>Montos en transferencia:</text-line>
-${formatMoney(inform.transferencia)}
+${formatMoney(inform.transferencia ?? 0)}
     </align>
+     <align mode="center">
+        <text-line size="0:0">-  - - - - - - -</text-line>
+    </align>
+    <text-line>Balance:            $${padFrontString(
+      inform.balance.toFixed(2),
+      11
+    )}</text-line>
 </document>
 `;
 export const xmlEstadoCaja2 = (

@@ -57,10 +57,10 @@ export const formatAreaProduct = (products: any[]) => {
   let productsArray: string[] = []; // Array para acumular las líneas
 
   products.forEach((product) => {
-    let name = `${product.offerName}:`;
+    let name = `${product.offerName}`;
 
     // Verificamos si la línea completa con el precio cabe en 19 caracteres
-    if (name.length <= 19) {
+    if (name.length < 19) {
       productsArray.push(
         `<text-line>${padBackString(name, 20)}${padFrontString(
           product.totalQuantity,
@@ -217,7 +217,10 @@ export const formatMoney = (money: any) => {
 
   taxesKey.forEach((currency: any) => {
     const _tax = `-${currency}:`;
-    let amount = `$${padFrontString(money[currency].toFixed(2), 11)}`;
+    let amount = `$${padFrontString(
+      Number(money[currency] ?? 0).toFixed(2),
+      11
+    )}`;
 
     // Verificamos si la línea completa cabe en 19 caracteres
     if (_tax.length <= 19) {

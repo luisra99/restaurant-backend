@@ -16,31 +16,18 @@ export const openAccount = async (req: Request, res: Response) => {
         status: true,
       },
     });
-    const openAccountsTables = await prisma.table.findMany({
-      where: {
-        id: Number(idTable),
-        Account: { some: { closed: { equals: null } } },
+    const newAccount = await prisma.account.create({
+      data: {
+        name,
+        people,
+        description,
+        idDependent,
+        idTable,
+        idType: idType ? Number(idType) : accountDefaultConcept?.id ?? 0,
+        taxDiscount: activeTaxDiscounts.map((tax) => tax.id),
       },
-      include: { Account: true },
     });
-    if (openAccountsTables.length > 0) {
-      res.status(200).json({ messaje: "La mesa esta ocupada" });
-    } else {
-      if (idType || accountDefaultConcept) {
-      }
-      const newAccount = await prisma.account.create({
-        data: {
-          name,
-          people,
-          description,
-          idDependent,
-          idTable,
-          idType: idType ? Number(idType) : accountDefaultConcept?.id ?? 0,
-          taxDiscount: activeTaxDiscounts.map((tax) => tax.id),
-        },
-      });
-      res.status(201).json(newAccount);
-    }
+    res.status(201).json(newAccount);
   } catch (error) {
     prisma.errorLogs.create({
       data: { info: "openAccount", error: JSON.stringify(error) },

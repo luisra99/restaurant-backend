@@ -25,6 +25,8 @@ model Concept {
   Payment       Payment[]  @relation(name: "DivisaPayment")
   Divisa        Withdraw[] @relation(name: "DivisaWithdraw")
   Withdraw      Withdraw[] @relation(name: "WithdrawConcept")
+  DivisaIncome  Income[]   @relation(name: "DivisaIncome")
+  Incomeconcept Income[]   @relation(name: "IncomeConcept")
 }
 
 model TaxDiscounts {
@@ -116,6 +118,16 @@ model Withdraw {
   date       DateTime @default(now())
   divisa     Concept? @relation(name: "DivisaWithdraw", fields: [idDivisa], references: [id])
   concept    Concept  @relation(name: "WithdrawConcept", fields: [idConcepto], references: [id])
+}
+
+model Income {
+  id         Int      @id @default(autoincrement())
+  idConcepto Int
+  idDivisa   Int?
+  amount     Decimal
+  date       DateTime @default(now())
+  divisa     Concept? @relation(name: "DivisaIncome", fields: [idDivisa], references: [id])
+  concept    Concept  @relation(name: "IncomeConcept", fields: [idConcepto], references: [id])
 }
 
 model Operator {

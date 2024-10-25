@@ -3,9 +3,9 @@ import { xmlVenta } from "./escpos.templates";
 
 export const printAccount = (account: any) => {
   const cuenta = {
-    table: account?.table?.name ?? account.name,
-    location: account?.table.details ?? "",
-    people: account.people,
+    table: account?.table?.name ?? "",
+    location: account?.table?.details ?? "",
+    people: account.people ?? "Sin especificar",
     initDate: account.created,
     initTime: account.created,
     dependent: account.dependent,

@@ -134,7 +134,7 @@ async function main() {
 
   const mainTipoCuentaParaLlevar = await prisma.concept.create({
     data: {
-      denomination: "Cuenta local",
+      denomination: "Para llevar",
       details: "Variedad de bebidas",
       fatherId: tipoCuenta.id,
     },
@@ -271,7 +271,6 @@ async function main() {
       details: { create: { quantity: 2, idOffer: mainOffer.id } },
     },
   });
-
   console.log("Seed data created successfully!");
 }
 

@@ -6,7 +6,12 @@ escpos.USB = require("escpos-usb");
 
 export const print = (data: any, model: any) => {
   const xml = model(data);
-  const buffer = EscPos.getBufferFromXML(xml);
+  const normalizedData = JSON.parse(
+    JSON.stringify(xml)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+  );
+  const buffer = EscPos.getBufferFromXML(normalizedData);
   imprimir(buffer);
 };
 

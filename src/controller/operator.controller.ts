@@ -5,12 +5,12 @@ const prisma = new PrismaClient();
 
 export const setInitialCash = async (req: Request, res: Response) => {
   try {
-    const { initialCash } = req.body.initialCash;
+    const { initialCash } = req.body;
     const operator = await prisma.operator.findFirst();
     const operatorLog = await prisma.operator.upsert({
       create: { initialCash },
       update: { initialCash },
-      where: { id: operator?.id },
+      where: { id: operator?.id ?? 0 },
     });
 
     res.status(201).json(operatorLog);
@@ -19,7 +19,28 @@ export const setInitialCash = async (req: Request, res: Response) => {
       data: { info: "setInitialCash", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
+    console.log(error);
+    const descripcionError = {
+      message: "Ha ocurrido un error creando el concepto.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
 
+    res.status(500).json(descripcionError);
+  }
+};
+export const getInitialCash = async (req: Request, res: Response) => {
+  try {
+    const { initialCash } = req.body;
+    const operator = await prisma.operator.findFirst();
+
+    res.status(201).json(operator);
+  } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "setInitialCash", error: JSON.stringify(error) },
+    });
+    const err = error as Error & { code?: string };
+    console.log(error);
     const descripcionError = {
       message: "Ha ocurrido un error creando el concepto.",
       code: err.code || "SERVER_ERROR",
@@ -57,7 +78,7 @@ export const setFinalCash = async (req: Request, res: Response) => {
 };
 export const setOperator = async (req: Request, res: Response) => {
   try {
-    const { idOperator } = req.body.finalCash;
+    const { idOperator } = req.body;
     const operator = await prisma.operator.findFirst();
     const operatorLog = await prisma.operator.upsert({
       create: { idOperator },

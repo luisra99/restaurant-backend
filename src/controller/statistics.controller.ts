@@ -11,15 +11,18 @@ export const operatorInform = async (req: Request, res: Response) => {
   try {
     let propina = 0;
     //#region De la cuenta
+    let ingresoTotal = 0;
     let ventaBruta = 0;
     let impuestos: any = {};
     let descuentos: any = {};
     const cuentas = await getAllAccountsFunction();
     cuentas.forEach((cuenta) => {
       ventaBruta += cuenta.totalPrice;
-
+      ingresoTotal += cuenta.totalPrice;
       cuenta.mappedTaxsDiscounts.map((taxDiscount: any) => {
         if (taxDiscount.tax) {
+          ingresoTotal += taxDiscount.amount;
+
           impuestos[`${taxDiscount.name} (${taxDiscount.percent}%)`] =
             (impuestos[`${taxDiscount.name} (${taxDiscount.percent}%)`] ?? 0) +
             taxDiscount.amount;
@@ -46,15 +49,14 @@ export const operatorInform = async (req: Request, res: Response) => {
     const withdraws = await prisma.withdraw.findMany({
       include: { concept: true },
     });
+    const income = await prisma.income.findMany({
+      include: { concept: true },
+    });
 
     console.log("Cash", cashPayments);
     console.log("Transfer", transferPayments);
     cashPayments.map((payment) => {
-      console.log(payment.divisa?.denomination);
-      efectivo[payment.divisa?.denomination ?? "CUP"] =
-        (efectivo[payment.divisa?.denomination ?? "CUP"] ?? 0) +
-        Number(payment.amount) /
-          (payment.divisa?.details ? Number(payment.divisa?.details) : 1);
+      efectivo["CUP"] = (efectivo["CUP"] ?? 0) + Number(payment.amount);
     });
     transferPayments.map((payment) => {
       transferencia[payment.divisa?.denomination ?? "CUP"] =
@@ -63,33 +65,36 @@ export const operatorInform = async (req: Request, res: Response) => {
           (payment.divisa?.details ? Number(payment.divisa?.details) : 1);
     });
     withdraws.map((withdraw) => {
+      ingresoTotal -= Number(withdraw.amount);
       extracciones[withdraw.concept.denomination] =
         (transferencia[withdraw.concept.denomination] ?? 0) +
         Number(withdraw.amount);
     });
+    income.map((_propina) => {
+      propina += Number(_propina.amount);
+    });
+    const { initialCash } = (await prisma.operator.findFirst()) ?? {};
     //#endregion
     //#region Calculado en caja
     //#endregion
-    efectivo.CUP -= extracciones["Cambio"] ?? 0;
+    ingresoTotal += propina;
+    efectivo.CUP = (efectivo.CUP ?? 0) - (extracciones["Cambio"] ?? 0);
     print(
       {
         ventaBruta,
+        ingresoTotal,
+        initialCash,
+        propina,
         impuestos,
         descuentos,
         efectivo,
         transferencia,
         extracciones,
+        balance: ingresoTotal + Number(initialCash),
       },
       xmlEstadoCaja
     );
-    console.log({
-      ventaBruta,
-      impuestos,
-      descuentos,
-      efectivo,
-      transferencia,
-      extracciones,
-    });
+
     res.status(201).json({
       ventaBruta,
       impuestos,

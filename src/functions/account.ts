@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { getDivisas } from "../controller/divisa.controller";
 const prisma = new PrismaClient();
 
@@ -93,8 +93,11 @@ export const getAccountFunction = async ({ id }: any) => {
   };
 };
 export const getAllAccountsFunction = async () => {
+  const cuentaCasaConcept = await prisma.concept.findFirst({
+    where: { denomination: "Cuenta casa" },
+  });
   let accounts = await prisma.account.findMany({
-    where: { closed: { not: null } },
+    where: { closed: { not: null }, idType: { not: cuentaCasaConcept?.id } },
   });
   const accountsResume = Promise.all(
     accounts?.map(async (account) => await getAccountFunction(account))
