@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { getAccountFunction } from "../functions/account";
+import { printAccount } from "../utils/print";
 
 const prisma = new PrismaClient();
 
@@ -87,6 +89,54 @@ export const setOperator = async (req: Request, res: Response) => {
     });
 
     res.status(201).json(operatorLog);
+  } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "setOperator", error: JSON.stringify(error) },
+    });
+    const err = error as Error & { code?: string };
+
+    const descripcionError = {
+      message: "Ha ocurrido un error creando el concepto.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
+export const reset = async (req: Request, res: Response) => {
+  try {
+    await prisma.account.deleteMany();
+    await prisma.withdraw.deleteMany();
+    await prisma.income.deleteMany();
+    res.status(201).json({ messaje: "Registro limpiado" });
+  } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "setOperator", error: JSON.stringify(error) },
+    });
+    const err = error as Error & { code?: string };
+
+    const descripcionError = {
+      message: "Ha ocurrido un error creando el concepto.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
+export const lastTicket = async (req: Request, res: Response) => {
+  try {
+    const accounts = await prisma.account.findMany({
+      orderBy: { closed: { sort: "desc" } },
+    });
+    if (accounts[0]) {
+      const account = await getAccountFunction(accounts[0]);
+      printAccount(account);
+      res.status(201).json(account);
+    } else {
+      res.status(201).json({ message: "No hay tickets" });
+    }
   } catch (error) {
     prisma.errorLogs.create({
       data: { info: "setOperator", error: JSON.stringify(error) },

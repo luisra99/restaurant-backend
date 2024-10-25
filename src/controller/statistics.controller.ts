@@ -100,7 +100,21 @@ export const operatorInform = async (req: Request, res: Response) => {
       xmlEstadoCaja
     );
 
-    res.status(201).json(cuentas);
+    res.status(201).json({
+      cuentas,
+      informe: {
+        ventaBruta,
+        ingresoTotal,
+        initialCash: initialCash ?? 0,
+        propina,
+        impuestos,
+        descuentos,
+        efectivo,
+        transferencia,
+        extracciones,
+        balance: ingresoTotal + Number(initialCash ?? 0),
+      },
+    });
   } catch (error) {
     prisma.errorLogs.create({
       data: { info: "operatorInform", error: JSON.stringify(error) },
