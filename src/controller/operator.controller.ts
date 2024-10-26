@@ -128,6 +128,7 @@ export const reset = async (req: Request, res: Response) => {
 export const lastTicket = async (req: Request, res: Response) => {
   try {
     const accounts = await prisma.account.findMany({
+      where: { closed: { not: null } },
       orderBy: { closed: { sort: "desc" } },
     });
     if (accounts[0]) {
