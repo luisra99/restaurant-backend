@@ -1,3 +1,5 @@
+import { lineFeed } from "./chatacters";
+
 export function padFrontString(input: any, pad: number) {
   while (input?.toString().length < pad) {
     input = " " + input; // Añade un espacio al principio
@@ -20,7 +22,7 @@ export const formatProducts = (products: any[]) => {
     // Verificamos si la línea completa con el precio cabe en 19 caracteres
     if (_order.length <= 19) {
       productsArray.push(
-        `<text-line>${padBackString(_order, 20)}${price}</text-line>`
+        `<text-line>${padBackString(_order, 20)}${price}</text-line>${lineFeed}`
       );
     } else {
       // Si no cabe, lo dividimos en múltiples líneas
@@ -36,7 +38,10 @@ export const formatProducts = (products: any[]) => {
         } else {
           // Si la línea actual está completa, la agregamos al array
           productsArray.push(
-            `<text-line>${padBackString(currentLine, 20)}</text-line>`
+            `<text-line>${padBackString(
+              currentLine,
+              20
+            )}</text-line>${lineFeed}`
           );
           currentLine = word; // Iniciamos una nueva línea con la palabra que no cabía
         }
@@ -44,7 +49,10 @@ export const formatProducts = (products: any[]) => {
         // Si es la última palabra, añadimos la línea final con el precio
         if (i === words.length - 1) {
           productsArray.push(
-            `<text-line>${padBackString(currentLine, 20)}${price}</text-line>`
+            `<text-line>${padBackString(
+              currentLine,
+              20
+            )}${price}</text-line>${lineFeed}`
           );
         }
       }
@@ -65,7 +73,7 @@ export const formatAreaProduct = (products: any[]) => {
         `<text-line>${padBackString(name, 20)}${padFrontString(
           product.totalQuantity,
           11
-        )}</text-line>`
+        )}</text-line>${lineFeed}`
       );
     } else {
       // Si no cabe, lo dividimos en múltiples líneas
@@ -81,7 +89,10 @@ export const formatAreaProduct = (products: any[]) => {
         } else {
           // Si la línea actual está completa, la agregamos al array
           productsArray.push(
-            `<text-line>${padBackString(currentLine, 20)}</text-line>`
+            `<text-line>${padBackString(
+              currentLine,
+              20
+            )}</text-line>${lineFeed}`
           );
           currentLine = word; // Iniciamos una nueva línea con la palabra que no cabía
         }
@@ -92,7 +103,7 @@ export const formatAreaProduct = (products: any[]) => {
             `<text-line>${padBackString(currentLine, 20)}${padFrontString(
               product.totalQuantity,
               11
-            )}</text-line>`
+            )}</text-line>${lineFeed}`
           );
         }
       }
@@ -111,7 +122,7 @@ export const formatTaxes = (taxes: any[]) => {
     // Verificamos si la línea completa cabe en 19 caracteres
     if (_tax.length <= 19) {
       taxesArray.push(
-        `<text-line>${padBackString(_tax, 20)}${amount}</text-line>`
+        `<text-line>${padBackString(_tax, 20)}${amount}</text-line>${lineFeed}`
       );
     } else {
       // Si no cabe, lo dividimos en múltiples líneas
@@ -127,7 +138,10 @@ export const formatTaxes = (taxes: any[]) => {
         } else {
           // Si la línea actual está completa, la agregamos al array
           taxesArray.push(
-            `<text-line>${padBackString(currentLine, 20)}</text-line>`
+            `<text-line>${padBackString(
+              currentLine,
+              20
+            )}</text-line>${lineFeed}`
           );
           currentLine = word; // Iniciamos una nueva línea con la palabra que no cabía
         }
@@ -135,7 +149,10 @@ export const formatTaxes = (taxes: any[]) => {
         // Si es la última palabra, añadimos la línea final con el monto
         if (i === words.length - 1) {
           taxesArray.push(
-            `<text-line>${padBackString(currentLine, 20)}${amount}</text-line>`
+            `<text-line>${padBackString(
+              currentLine,
+              20
+            )}${amount}</text-line>${lineFeed}`
           );
         }
       }
@@ -149,7 +166,7 @@ export const formatAreas = (areas: any) => {
   const areaKeys = Object.keys(areas);
   console.log(areaKeys);
   areaKeys.map((area) => {
-    xml += `<align mode="left"><text-line>${area}:</text-line></align>${formatAreaProduct(
+    xml += `<align mode="left"><text-line>${area}:</text-line>${lineFeed}</align>${formatAreaProduct(
       areas[area]
     )}<align mode="center"><text-line size="0:0">- - - - - - - - - - - - - - - -</text-line></align>`;
   });
@@ -163,7 +180,7 @@ export const formatCurrency = (currency: any[]) => {
     xml += `<text-line>${padBackString(text, 20)}$${padFrontString(
       Number(amount).toFixed(2),
       11
-    )}</text-line>`;
+    )}</text-line>${lineFeed}`;
   });
   return xml;
 };
@@ -178,7 +195,7 @@ export const formatTaxesStatus = (taxes: any) => {
     // Verificamos si la línea completa cabe en 19 caracteres
     if (_tax.length <= 19) {
       taxesArray.push(
-        `<text-line>${padBackString(_tax, 20)}${amount}</text-line>`
+        `<text-line>${padBackString(_tax, 20)}${amount}</text-line>${lineFeed}`
       );
     } else {
       // Si no cabe, lo dividimos en múltiples líneas
@@ -194,7 +211,10 @@ export const formatTaxesStatus = (taxes: any) => {
         } else {
           // Si la línea actual está completa, la agregamos al array
           taxesArray.push(
-            `<text-line>${padBackString(currentLine, 20)}</text-line>`
+            `<text-line>${padBackString(
+              currentLine,
+              20
+            )}</text-line>${lineFeed}`
           );
           currentLine = word; // Iniciamos una nueva línea con la palabra que no cabía
         }
@@ -202,7 +222,10 @@ export const formatTaxesStatus = (taxes: any) => {
         // Si es la última palabra, añadimos la línea final con el monto
         if (i === words.length - 1) {
           taxesArray.push(
-            `<text-line>${padBackString(currentLine, 20)}${amount}</text-line>`
+            `<text-line>${padBackString(
+              currentLine,
+              20
+            )}${amount}</text-line>${lineFeed}`
           );
         }
       }
@@ -225,7 +248,7 @@ export const formatMoney = (money: any) => {
     // Verificamos si la línea completa cabe en 19 caracteres
     if (_tax.length <= 19) {
       taxesArray.push(
-        `<text-line>${padBackString(_tax, 20)}${amount}</text-line>`
+        `<text-line>${padBackString(_tax, 20)}${amount}</text-line>${lineFeed}`
       );
     } else {
       // Si no cabe, lo dividimos en múltiples líneas
@@ -241,7 +264,10 @@ export const formatMoney = (money: any) => {
         } else {
           // Si la línea actual está completa, la agregamos al array
           taxesArray.push(
-            `<text-line>${padBackString(currentLine, 20)}</text-line>`
+            `<text-line>${padBackString(
+              currentLine,
+              20
+            )}</text-line>${lineFeed}`
           );
           currentLine = word; // Iniciamos una nueva línea con la palabra que no cabía
         }
@@ -249,7 +275,10 @@ export const formatMoney = (money: any) => {
         // Si es la última palabra, añadimos la línea final con el monto
         if (i === words.length - 1) {
           taxesArray.push(
-            `<text-line>${padBackString(currentLine, 20)}${amount}</text-line>`
+            `<text-line>${padBackString(
+              currentLine,
+              20
+            )}${amount}</text-line>${lineFeed}`
           );
         }
       }

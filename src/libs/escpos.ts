@@ -29,8 +29,8 @@ function imprimir(buffer: any) {
       device.open();
       const iface = device.interfaces?.[0];
       iface?.claim();
-      const endpoint: any = iface?.endpoints[0];
-      endpoint?.transfer?.(buffer, (error: any) => {
+      const endpoint: any = iface?.endpoints[Number(process.env.INTERFACE)];
+      endpoint?.transferAsync?.(buffer, (error: any) => {
         if (error) {
           console.error("Error al enviar datos a la impresora:", error);
         } else {
