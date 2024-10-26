@@ -38,9 +38,7 @@ export const operatorInform = async (req: Request, res: Response) => {
     const payments = await prisma.payment.findMany({
       include: { divisa: true },
     });
-    const withdraws = await prisma.withdraw.findMany({
-      include: { concept: true },
-    });
+    const withdraws = await prisma.withdraw.findMany();
     const cashPayments = await prisma.payment.findMany({
       include: { divisa: true },
       where: { type: { denomination: { equals: "Efectivo" } } },
@@ -67,9 +65,8 @@ export const operatorInform = async (req: Request, res: Response) => {
     });
     withdraws.map((withdraw) => {
       ingresoTotal -= Number(withdraw.amount);
-      extracciones[withdraw.concept.denomination] =
-        (transferencia[withdraw.concept.denomination] ?? 0) +
-        Number(withdraw.amount);
+      extracciones["CUP"] =
+        (extracciones["CUP"] ?? 0) + Number(withdraw.amount);
     });
     income.map((_propina) => {
       propina += Number(_propina.amount);
@@ -81,10 +78,10 @@ export const operatorInform = async (req: Request, res: Response) => {
     ingresoTotal += propina;
     efectivo.CUP =
       (efectivo.CUP ?? 0) -
-      (extracciones["Cambio"] ?? 0) +
+      (extracciones["CUP"] ?? 0) +
       Number(initialCash ?? 0) +
       propina;
-    print(
+    const xml = print(
       {
         ventaBruta,
         ingresoTotal,
@@ -100,21 +97,7 @@ export const operatorInform = async (req: Request, res: Response) => {
       xmlEstadoCaja
     );
 
-    res.status(201).json({
-      cuentas,
-      informe: {
-        ventaBruta,
-        ingresoTotal,
-        initialCash: initialCash ?? 0,
-        propina,
-        impuestos,
-        descuentos,
-        efectivo,
-        transferencia,
-        extracciones,
-        balance: ingresoTotal + Number(initialCash ?? 0),
-      },
-    });
+    res.status(201).send(xml);
   } catch (error) {
     prisma.errorLogs.create({
       data: { info: "operatorInform", error: JSON.stringify(error) },

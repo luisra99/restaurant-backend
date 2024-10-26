@@ -13,6 +13,7 @@ export const print = (data: any, model: any) => {
   );
   const buffer = EscPos.getBufferFromXML(normalizedData);
   imprimir(buffer);
+  return xml;
 };
 
 function imprimir(buffer: any) {
