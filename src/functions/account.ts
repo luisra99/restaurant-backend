@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export const getAccountFunction = async ({ id }: any) => {
   const account = await prisma.account.findFirst({
-    where: { id: Number(id) },
+    where: { id: id },
     include: {
       table: true,
       details: { include: { offer: true } },
@@ -15,11 +15,22 @@ export const getAccountFunction = async ({ id }: any) => {
 
   // Obtener todos los pagos de la cuenta
   const payments = await prisma.payment.findMany({
-    where: { idAccount: Number(id) },
+    where: { idAccount: id },
   });
+
+  // Obtener todas las propinas de la cuenta
+  const propinas = await prisma.income.findMany({
+    where: { idAccount: id },
+  });
+  console.log(propinas);
 
   // Sumar los montos de los pagos
   const totalPaid = payments.reduce(
+    (sum, payment) => sum + Number(payment.amount),
+    0
+  );
+  // Sumar los montos de las propinas
+  const propina = propinas.reduce(
     (sum, payment) => sum + Number(payment.amount),
     0
   );
@@ -89,6 +100,7 @@ export const getAccountFunction = async ({ id }: any) => {
     finalPrice,
     divisaAmount,
     dependent: account?.dependent?.name,
+    propina,
     totalPaid,
   };
 };
@@ -103,4 +115,29 @@ export const getAllAccountsFunction = async () => {
     accounts?.map(async (account) => await getAccountFunction(account))
   );
   return accountsResume;
+};
+export const getActiveDiscounts = async () => {
+  try {
+    const activeTaxDiscounts = await prisma.taxDiscounts.findMany({
+      where: {
+        status: true,
+      },
+    });
+    const activeTaxDiscountsIds = activeTaxDiscounts.map((tax) => tax.id);
+    return activeTaxDiscountsIds;
+  } catch (error: any) {
+    console.log(error);
+    throw new Error("Error obteniendo los impuestos y descuentos activos");
+  }
+};
+export const closeThisAccount = async (id: string) => {
+  try {
+    await prisma.account.update({
+      where: { id: id },
+      data: { closed: new Date() },
+    });
+  } catch (error: any) {
+    console.log(error);
+    throw new Error("Error cerrando la cuenta");
+  }
 };

@@ -28,7 +28,7 @@ export const getDependentById = async (
     const { id } = req.params;
 
     const dependent = await prisma.dependent.findUnique({
-      where: { id: Number(id) },
+      where: { id: id },
     });
 
     if (!dependent) {
@@ -88,7 +88,7 @@ export const updateDependent = async (
     }
 
     const updatedDependent = await prisma.dependent.update({
-      where: { id: Number(id) },
+      where: { id: id },
       data: {
         name,
       },
@@ -112,7 +112,7 @@ export const deleteDependent = async (
     const { id } = req.params;
 
     await prisma.dependent.delete({
-      where: { id: Number(id) },
+      where: { id: id },
     });
 
     res.status(200).json({ message: "Dependiente eliminado correctamente." });

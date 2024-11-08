@@ -1,1 +1,1 @@
-export const lineFeed = process.env.INTERFACE == "1" ? "<line-feed />" : "";
+export const lineFeed = process.env.ADD_FEED == "1" ? "<line-feed />" : "";

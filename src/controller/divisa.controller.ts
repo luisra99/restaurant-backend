@@ -53,7 +53,7 @@ export const getDivisaById = async (
     const { id } = req.params;
 
     const divisa = await prisma.concept.findUnique({
-      where: { id: Number(id) },
+      where: { id: id },
     });
 
     if (!divisa) {
@@ -113,7 +113,7 @@ export const updateDivisa = async (
     const { denomination, details } = req.body;
 
     const updatedDivisa = await prisma.concept.update({
-      where: { id: Number(id) },
+      where: { id: id },
       data: {
         denomination,
         details: String(details), // Actualizamos el campo details
@@ -138,7 +138,7 @@ export const deleteDivisa = async (
     const { id } = req.params;
 
     await prisma.concept.delete({
-      where: { id: Number(id) },
+      where: { id: id },
     });
 
     res.status(200).json({ message: "Divisa eliminada correctamente." });

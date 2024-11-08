@@ -96,7 +96,7 @@ export const printStatus = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const account = await prisma.account.findFirst({
-      where: { id: Number(id) },
+      where: { id: id },
       include: {
         table: true,
         details: { include: { offer: true } },

@@ -11,7 +11,7 @@ export const createTable = async (req: Request, res: Response) => {
     const newTable = await prisma.table.create({
       data: {
         name,
-        capacity: Number(capacity),
+        capacity: capacity,
         details,
       },
     });
@@ -49,6 +49,7 @@ export const listTables = async (req: Request, res: Response) => {
           where: { closed: { equals: null } },
         },
       },
+      orderBy: { details: "asc" },
     });
     const response = tables.map((table) => {
       let amount = 0;
@@ -91,7 +92,7 @@ export const getTable = async (req: Request, res: Response) => {
 
     const table = await prisma.table.findUnique({
       where: {
-        id: Number(id),
+        id: id,
       },
     });
 
@@ -121,10 +122,10 @@ export const updateTable = async (req: Request, res: Response) => {
     const { name, capacity, details } = req.body;
 
     const updatedTable = await prisma.table.update({
-      where: { id: Number(id) },
+      where: { id: id },
       data: {
         name,
-        capacity: Number(capacity),
+        capacity: capacity,
         details,
       },
     });
@@ -150,7 +151,7 @@ export const deleteTable = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const deletedTable = await prisma.table.delete({
-      where: { id: Number(id) },
+      where: { id: id },
     });
 
     res.status(200).json(deletedTable);

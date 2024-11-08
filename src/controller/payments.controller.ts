@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { getDivisas } from "./divisa.controller";
 
 const prisma = new PrismaClient();
 
@@ -14,7 +13,7 @@ export const pay = async (req: Request, res: Response) => {
     if (idDivisa) {
       const currencyConcept = await prisma.concept.findUnique({
         where: {
-          id: Number(idDivisa), // Convertimos a número para buscar el id
+          id: idDivisa, // Convertimos a número para buscar el id
         },
       });
 
@@ -32,11 +31,11 @@ export const pay = async (req: Request, res: Response) => {
       }
     }
     let data: any = {
-      idAccount: Number(idAccount),
-      idMethod: Number(idMethod),
+      idAccount: idAccount,
+      idMethod: idMethod,
       amount,
     };
-    if (idDivisa) data.idDivisa = Number(idDivisa);
+    if (idDivisa) data.idDivisa = idDivisa;
 
     // Crear el pago
     const payment = await prisma.payment.create({
@@ -61,7 +60,7 @@ export const getPayments = async (req: Request, res: Response) => {
   try {
     const payments = await prisma.payment.findMany({
       where: {
-        idAccount: Number(accountId),
+        idAccount: accountId,
       },
     });
     res.json(payments);
@@ -81,7 +80,7 @@ export const deletePayments = async (req: Request, res: Response) => {
   try {
     await prisma.payment.deleteMany({
       where: {
-        idAccount: Number(accountId),
+        idAccount: accountId,
       },
     });
     res.status(204).send();

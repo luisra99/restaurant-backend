@@ -9,12 +9,13 @@ export const setInitialCash = async (req: Request, res: Response) => {
   try {
     const { initialCash } = req.body;
     const operator = await prisma.operator.findFirst();
-    const operatorLog = await prisma.operator.upsert({
-      create: { initialCash },
-      update: { initialCash },
-      where: { id: operator?.id ?? 0 },
-    });
 
+    if (operator?.id) {
+      await prisma.operator.delete({ where: { id: operator.id } });
+    }
+    const operatorLog = await prisma.operator.create({
+      data: { initialCash },
+    });
     res.status(201).json(operatorLog);
   } catch (error) {
     prisma.errorLogs.create({

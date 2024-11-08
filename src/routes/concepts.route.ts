@@ -1,22 +1,18 @@
 import { Router } from "express";
 import {
   createConcept,
-  listConcepts,
   updateConcept,
   deleteConcept,
-  findConceptsByFather,
-  getConcept,
-  getConceptByDenomination,
+  getConcepts,
+  getConceptById,
 } from "../controller/concept.controller";
 
 const router = Router();
 
-router.post("/concepts", createConcept);
-router.get("/concepts", listConcepts);
-router.get("/concepts/:id", getConcept);
-router.post("/concept", getConceptByDenomination);
-router.put("/concepts/:id", updateConcept);
-router.delete("/concepts/:id", deleteConcept);
-router.get("/concepts/father/:fatherId", findConceptsByFather);
+router.post("/concept/:fatherDenomination", createConcept);
+router.get("/concept-list/:fatherDenomination", getConcepts);
+router.get("/concept/:id", getConceptById);
+router.put("/concept/:id", updateConcept);
+router.delete("/concept/:id", deleteConcept);
 
 export default router;

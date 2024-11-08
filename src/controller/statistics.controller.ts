@@ -55,7 +55,7 @@ export const operatorInform = async (req: Request, res: Response) => {
       ingresoTotal += Number(payment.amount);
     });
     cashPayments.map((payment) => {
-      efectivo["CUP"] = (efectivo["CUP"] ?? 0) + Number(payment.amount);
+      efectivo["CUP"] = (efectivo["CUP"] ?? 0) + payment.amount;
     });
     transferPayments.map((payment) => {
       transferencia[payment.divisa?.denomination ?? "CUP"] =

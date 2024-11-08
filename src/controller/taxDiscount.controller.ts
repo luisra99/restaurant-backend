@@ -28,7 +28,7 @@ export const getTaxDiscountById = async (
     const { id } = req.params;
 
     const taxDiscount = await prisma.taxDiscounts.findUnique({
-      where: { id: Number(id) },
+      where: { id: id },
     });
 
     if (!taxDiscount) {
@@ -53,10 +53,10 @@ export const alterTaxDiscount = async (
     const { id } = req.params;
 
     const taxDiscount = await prisma.taxDiscounts.findUnique({
-      where: { id: Number(id) },
+      where: { id: id },
     });
     const updatedTaxDiscount = await prisma.taxDiscounts.update({
-      where: { id: Number(id) },
+      where: { id: id },
       data: {
         ...taxDiscount,
         status: !taxDiscount?.status,
@@ -95,8 +95,8 @@ export const createTaxDiscount = async (
     const newTaxDiscount = await prisma.taxDiscounts.create({
       data: {
         name,
-        percent: Number(percent), // Asegurar que el porcentaje sea un número
-        tax: Boolean(Number(tax)), // Asegurar que tax sea un valor booleano
+        percent: percent, // Asegurar que el porcentaje sea un número
+        tax: Boolean(tax), // Asegurar que tax sea un valor booleano
       },
     });
 
@@ -126,11 +126,11 @@ export const updateTaxDiscount = async (
     }
 
     const updatedTaxDiscount = await prisma.taxDiscounts.update({
-      where: { id: Number(id) },
+      where: { id: id },
       data: {
         name,
-        percent: Number(percent),
-        tax: Boolean(Number(tax)), // Asegurar que tax sea un valor booleano
+        percent: percent,
+        tax: Boolean(tax), // Asegurar que tax sea un valor booleano
       },
     });
 
@@ -152,7 +152,7 @@ export const deleteTaxDiscount = async (
     const { id } = req.params;
 
     await prisma.taxDiscounts.delete({
-      where: { id: Number(id) },
+      where: { id: id },
     });
 
     res.status(200).json({ message: "Tax/Discount eliminado correctamente." });

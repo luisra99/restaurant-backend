@@ -12,10 +12,10 @@ datasource db {
 }
 
 model Concept {
-  id            Int        @id @default(autoincrement())
+  id            String     @id @default(cuid())
   denomination  String
   details       String?
-  fatherId      Int? // Relación opcional para permitir valores nulos
+  fatherId      String? // Relación opcional para permitir valores nulos
   conceptFather Concept?   @relation("FatherConcept", fields: [fatherId], references: [id])
   childConcept  Concept[]  @relation("FatherConcept") // Relación inversa para los conceptos hijos
   OfferArea     Offer[]    @relation(name: "OfferArea")
@@ -30,29 +30,29 @@ model Concept {
 }
 
 model TaxDiscounts {
-  id      Int     @id @default(autoincrement())
+  id      String  @id @default(cuid())
   name    String
-  percent Decimal
+  percent Decimal @db.Decimal(9, 2)
   status  Boolean @default(false)
   tax     Boolean
 }
 
 model Offer {
-  id             Int              @id @default(autoincrement())
+  id             String           @id @default(cuid())
   name           String
   description    String
   details        String?
   image          String?
-  idArea         Int
-  idCategory     Int
-  price          Decimal
+  idArea         String
+  idCategory     String
+  price          Decimal          @db.Decimal(9, 2)
   category       Concept          @relation(name: "OfferCategory", fields: [idCategory], references: [id])
   area           Concept          @relation(name: "OfferArea", fields: [idArea], references: [id])
   accountDetails AccountDetails[] // Relación con los detalles de cuenta
 }
 
 model Table {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(cuid())
   name      String
   capacity  Int
   details   String
@@ -61,7 +61,7 @@ model Table {
 }
 
 model Dependent {
-  id        Int        @id @default(autoincrement())
+  id        String     @id @default(cuid())
   name      String
   Account   Account[]
   createdAt DateTime   @default(now())
@@ -70,14 +70,14 @@ model Dependent {
 }
 
 model Account {
-  id          Int              @id @default(autoincrement())
+  id          String           @id @default(cuid())
   name        String
   description String?
-  idTable     Int?
-  idType      Int
+  idTable     String?
+  idType      String
   people      Int?
-  idDependent Int?
-  taxDiscount Int[]
+  idDependent String?
+  taxDiscount String[]
   active      Boolean          @default(true)
   created     DateTime         @default(now())
   closed      DateTime?
@@ -86,24 +86,26 @@ model Account {
   dependent   Dependent?       @relation(fields: [idDependent], references: [id])
   payments    Payment[] // Relación con los pagos
   details     AccountDetails[] // Relación con los detalles de la cuenta
+  Income      Income[]         @relation(name: "Propina")
 }
 
 model AccountDetails {
-  id        Int      @id @default(autoincrement())
-  idAccount Int
-  idOffer   Int
-  time      DateTime @default(now())
+  id        String   @id @default(cuid())
+  idAccount String
+  idOffer   String
+  time      DateTime @updatedAt
+  house     Int      @default(0)
   quantity  Int // Cantidad del producto ofertado
   account   Account  @relation(fields: [idAccount], references: [id], onDelete: Cascade, onUpdate: Cascade)
   offer     Offer    @relation(fields: [idOffer], references: [id])
 }
 
 model Payment {
-  id        Int      @id @default(autoincrement())
-  idAccount Int
-  idMethod  Int // Método de pago (efectivo, tarjeta, etc.)
-  idDivisa  Int? // Método de pago (efectivo, tarjeta, etc.)
-  amount    Decimal
+  id        String   @id @default(cuid())
+  idAccount String
+  idMethod  String // Método de pago (efectivo, tarjeta, etc.)
+  idDivisa  String? // Método de pago (efectivo, tarjeta, etc.)
+  amount    Decimal  @db.Decimal(9, 2)
   date      DateTime @default(now())
   divisa    Concept? @relation(name: "DivisaPayment", fields: [idDivisa], references: [id])
   type      Concept  @relation(name: "TypePayment", fields: [idMethod], references: [id])
@@ -111,30 +113,32 @@ model Payment {
 }
 
 model Withdraw {
-  id         Int      @id @default(autoincrement())
-  idConcepto Int
-  idDivisa   Int?
-  amount     Decimal
+  id         String   @id @default(cuid())
+  idConcepto String
+  idDivisa   String?
+  amount     Decimal  @db.Decimal(9, 2)
   date       DateTime @default(now())
   divisa     Concept? @relation(name: "DivisaWithdraw", fields: [idDivisa], references: [id])
   concept    Concept  @relation(name: "WithdrawConcept", fields: [idConcepto], references: [id])
 }
 
 model Income {
-  id         Int      @id @default(autoincrement())
-  idConcepto Int
-  idDivisa   Int?
-  amount     Decimal
+  id         String   @id @default(cuid())
+  idConcepto String
+  idDivisa   String?
+  idAccount  String?
+  amount     Decimal  @db.Decimal(9, 2)
   date       DateTime @default(now())
+  account    Account? @relation(name: "Propina", fields: [idAccount], references: [id])
   divisa     Concept? @relation(name: "DivisaIncome", fields: [idDivisa], references: [id])
   concept    Concept  @relation(name: "IncomeConcept", fields: [idConcepto], references: [id])
 }
 
 model Operator {
-  id          Int        @id @default(autoincrement())
-  initialCash Decimal?
-  finalCash   Decimal?
-  idOperator  Int?
+  id          String     @id @default(cuid())
+  initialCash Decimal?   @db.Decimal(9, 2)
+  finalCash   Decimal?   @db.Decimal(9, 2)
+  idOperator  String?
   dependent   Dependent? @relation(fields: [idOperator], references: [id])
 }
 

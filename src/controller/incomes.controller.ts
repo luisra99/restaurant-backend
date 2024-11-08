@@ -1,59 +1,53 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { getDivisaConcept, getPropinaConcept } from "../functions/concepts";
+import { getDivisaConversionRateAmount } from "../utils/calc";
 
 const prisma = new PrismaClient();
 
 export const setPropina = async (req: Request, res: Response) => {
   try {
-    let { amount, idDivisa } = req.body;
+    let { amount, idDivisa, idAccount } = req.body;
+    const propina = Math.abs(amount);
+    let propinaData: any = {
+      amount: propina,
+    };
 
     if (idDivisa) {
-      const currencyConcept = await prisma.concept.findUnique({
-        where: {
-          id: Number(idDivisa), // Convertimos a número para buscar el id
-        },
-      });
-
-      // Verificar si se encontró el concepto y que details es un número
-      if (currencyConcept && currencyConcept.details) {
-        const conversionRate = Number(currencyConcept.details);
-        if (!isNaN(conversionRate)) {
-          // Multiplicar amount por el tipo de cambio
-          amount *= conversionRate;
-        }
-      } else {
-        return res
-          .status(400)
-          .json({ error: "Divisa no válida o sin tasa de conversión." });
-      }
+      const currencyConcept = await getDivisaConcept(idDivisa);
+      propinaData.amount = getDivisaConversionRateAmount(
+        propina,
+        currencyConcept
+      );
     }
-    let propinaData: any = {
-      amount,
-    };
-    if (idDivisa) propinaData.idDivisa = Number(idDivisa);
 
-    const propina = await prisma.concept.findFirst({
-      where: { denomination: { equals: "Propina" } },
-    });
-    if (propina) {
-      propinaData.idConcepto = propina.id;
-    } else {
-      const { id } = await prisma.concept.create({
-        data: { denomination: "Propina" },
-      });
+    if (idDivisa) propinaData.idDivisa = idDivisa;
+    if (idAccount) propinaData.idAccount = idAccount;
+
+    const { id } = await getPropinaConcept();
+    if (id) {
       propinaData.idConcepto = id;
     }
-
+    if (idAccount) {
+      const _existPropina = await prisma.income.findFirst({
+        where: { idAccount: idAccount },
+      });
+      if (_existPropina) {
+        const updated = await prisma.income.update({
+          where: { id: _existPropina.id },
+          data: propinaData,
+        });
+        return res.status(201).json(updated);
+      }
+    }
     const propinaLog = await prisma.income.create({
       data: propinaData,
     });
-
     res.status(201).json(propinaLog);
-  } catch (error) {
-    prisma.errorLogs.create({
-      data: { info: "pay", error: JSON.stringify(error) },
-    });
+  } catch (error: any) {
     console.log(error);
-    res.status(500).json({ error: "Error al registrar el pago." });
+    res
+      .status(500)
+      .json({ error: error.message || "Error al registrar la propina." });
   }
 };

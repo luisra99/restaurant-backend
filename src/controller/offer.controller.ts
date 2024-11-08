@@ -23,8 +23,8 @@ export const createOffer = async (req: Request, res: Response) => {
         name,
         description,
         details,
-        idArea: Number(idArea),
-        idCategory: Number(idCategory),
+        idArea: idArea,
+        idCategory: idCategory,
         price: new Decimal(price),
         image, // Guarda solo la ruta de la imagen
       },
@@ -59,7 +59,7 @@ export const updateOffer = async (req: Request, res: Response) => {
 
     // Busca la oferta actual para eliminar la imagen anterior si existe
     const offer = await prisma.offer.findUnique({
-      where: { id: Number(id) },
+      where: { id: id },
     });
 
     if (!offer) {
@@ -75,13 +75,13 @@ export const updateOffer = async (req: Request, res: Response) => {
     }
 
     const updatedOffer = await prisma.offer.update({
-      where: { id: Number(id) },
+      where: { id: id },
       data: {
         name,
         description,
         details,
-        idArea: Number(idArea),
-        idCategory: Number(idCategory),
+        idArea: idArea,
+        idCategory: idCategory,
         price: new Decimal(price),
         image: image || offer.image, // Mantén la imagen existente si no se sube una nueva
       },
@@ -133,12 +133,41 @@ export const listOffers = async (req: Request, res: Response) => {
     res.status(500).json(descripcionError);
   }
 };
+// Listar todas las ofertas recientes
+export const listRecentOffers = async (req: Request, res: Response) => {
+  try {
+    const recentOffers = await prisma.accountDetails.findMany({
+      take: 20,
+      orderBy: {
+        time: "desc",
+      },
+      distinct: ["idOffer"], // Esto elimina duplicados basándose en el campo idOffer
+      include: {
+        offer: true,
+      },
+    });
+
+    res.status(200).json(recentOffers?.map(({ offer }) => offer));
+  } catch (error) {
+    prisma.errorLogs.create({
+      data: { info: "listOffer", error: JSON.stringify(error) },
+    });
+    const err = error as Error & { code?: string };
+    const descripcionError = {
+      message: "Error listando las ofertas.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
 // Obtener oferta
 export const getOffer = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const offers = await prisma.offer.findFirst({
-      where: { id: Number(id) },
+      where: { id: id },
     });
 
     res.status(200).json(offers);
@@ -163,7 +192,7 @@ export const deleteOffer = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const deletedOffer = await prisma.offer.delete({
-      where: { id: Number(id) },
+      where: { id: id },
     });
 
     res.status(200).json(deletedOffer);
@@ -188,7 +217,7 @@ export const findOffersByArea = async (req: Request, res: Response) => {
     const { idArea } = req.params;
 
     const offers = await prisma.offer.findMany({
-      where: { idArea: Number(idArea) },
+      where: { idArea: idArea },
     });
 
     res.status(200).json(offers);
@@ -213,7 +242,7 @@ export const findOffersByCategory = async (req: Request, res: Response) => {
     const { idCategory } = req.params;
 
     const offers = await prisma.offer.findMany({
-      where: { idCategory: Number(idCategory) },
+      where: { idCategory: idCategory },
     });
 
     res.status(200).json(offers);
