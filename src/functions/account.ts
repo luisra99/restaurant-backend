@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { getDivisas } from "../controller/divisa.controller";
 const prisma = new PrismaClient();
 
-export const getAccountFunction = async ({ id }: any) => {
+export const getAccountFunction = async ({ id, distinct }: any) => {
   const account = await prisma.account.findFirst({
     where: { id: id },
     include: {
@@ -35,23 +35,71 @@ export const getAccountFunction = async ({ id }: any) => {
     0
   );
 
-  const orders = account?.details.map((detail) => {
-    return {
-      id: detail.offer.id,
-      name: detail.offer.name,
-      quantity: detail.quantity,
-      totalPrice: detail.quantity * Number(detail.offer.price), // Multiplica cantidad por precio
-    };
-  });
+  function mapAndGroupDetails(details: any[]) {
+    // Filtrar los detalles que tienen marchado distinto de null
+    const filteredDetails = details.filter(
+      (detail) => detail.marchado !== null
+    );
+
+    // Agrupar los detalles por idOffer y acumular la cantidad de cada grupo
+    const groupedDetails = filteredDetails.reduce((acc, detail) => {
+      if (!acc[detail.idOffer]) {
+        // Si no existe el grupo, inicializarlo
+        acc[detail.idOffer] = {
+          id: detail.offer.id,
+          name: detail.offer.name,
+          quantity: 0,
+          marchado: true,
+          totalPrice: 0,
+        };
+      }
+
+      // Sumar la cantidad y el precio total al grupo existente
+      acc[detail.idOffer].quantity += detail.quantity;
+      acc[detail.idOffer].totalPrice +=
+        detail.quantity * Number(detail.offer.price);
+
+      return acc;
+    }, {} as Record<string, { id: string; name: string; quantity: number; totalPrice: number }>);
+
+    // Convertir el resultado a un array
+    return Object.values(groupedDetails);
+  }
+  const marchadas = mapAndGroupDetails(account?.details ?? []);
+  const sinMarchar = (account?.details ?? [])
+    .filter((detail: any) => detail.marchado == null)
+    .map((detail: any) => {
+      return {
+        id: detail.offer.id,
+        name: detail.offer.name,
+        quantity: detail.quantity,
+        marchado: false,
+        totalPrice: detail.quantity * Number(detail.offer.price), // Multiplica cantidad por precio
+      };
+    });
+
+  const orders = distinct
+    ? [...marchadas, ...sinMarchar]
+    : (account?.details ?? []).map((detail: any) => {
+        return {
+          id: detail.offer.id,
+          name: detail.offer.name,
+          quantity: detail.quantity,
+          totalPrice: detail.quantity * Number(detail.offer.price), // Multiplica cantidad por precio
+        };
+      });
 
   const divisas = await getDivisas();
 
   // Calcular el total de todas las cantidades
-  const totalQuantity = orders?.reduce((sum, order) => sum + order.quantity, 0);
+  const totalQuantity = orders?.reduce(
+    (sum: any, order: any) => sum + order.quantity,
+    0
+  );
 
   // Calcular el precio total de todas las ofertas
   const totalPrice =
-    orders?.reduce((sum, order) => sum + order.totalPrice, 0) ?? 0;
+    orders?.reduce((sum: number, order: any) => sum + order.totalPrice, 0) ?? 0;
 
   const taxsDiscounts = account?.taxDiscount.length
     ? await prisma.taxDiscounts.findMany({

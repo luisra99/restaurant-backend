@@ -15,10 +15,10 @@ export function padBackString(input: any, pad: number) {
   }
   return input;
 }
-export function padFillString(pad: number) {
+export function padFillString(pad: number, char = "-") {
   let input = "";
   while (input?.length < pad) {
-    input = input + " - "; // Añade un espacio al principio
+    input = input + ` ${char} `; // Añade un espacio al principio
   }
   return input.trim();
 }
@@ -28,7 +28,7 @@ export const formatProducts = (products: any[]) => {
     products.forEach((order) => {
       const _order = `${order.count} ${order.product}`;
       let price = `$${padFrontString(
-        order.price.toFixed(2),
+        Number(order.price).toFixed(2),
         printerPaperSize[paperSize].productPrice
       )}`;
 
@@ -142,13 +142,74 @@ export const formatAreaProduct = (products: any[]) => {
     return productsArray.join("");
   }
 };
+export const formatAreaProductOrder = (products: any[]) => {
+  let productsArray: string[] = []; // Array para acumular las líneas
+
+  if (paperSize) {
+    products.forEach((product) => {
+      let name = `${product.name}`;
+      // Verificamos si la línea completa con el precio cabe en printerPaperSize[paperSize].breakLine caracteres
+      if (name.length < printerPaperSize[paperSize].breakLine / 2) {
+        productsArray.push(
+          `<text-line size="1:1">${padBackString(
+            name,
+            printerPaperSize[paperSize].productName / 2
+          )}${padFrontString(
+            product.quantity,
+            printerPaperSize[paperSize].productAmount / 2
+          )}</text-line>${lineFeed}`
+        );
+      } else {
+        // Si no cabe, lo dividimos en múltiples líneas
+        const words = name.split(" ");
+        let currentLine = "";
+
+        for (let i = 0; i < words.length; i++) {
+          let word = words[i];
+
+          // Verificamos si añadir la palabra actual excede los printerPaperSize[paperSize].breakLine caracteres
+          if (
+            (currentLine + " " + word).trim().length <=
+            printerPaperSize[paperSize].breakLine / 2
+          ) {
+            currentLine += (currentLine ? " " : "") + word;
+          } else {
+            // Si la línea actual está completa, la agregamos al array
+            productsArray.push(
+              `<text-line size="1:1">${padBackString(
+                currentLine,
+                printerPaperSize[paperSize].productName / 2
+              )}</text-line>${lineFeed}`
+            );
+            currentLine = word; // Iniciamos una nueva línea con la palabra que no cabía
+          }
+
+          // Si es la última palabra, añadimos la línea final con el precio
+          if (i === words.length - 1) {
+            productsArray.push(
+              `<text-line size="1:1">${padBackString(
+                currentLine,
+                printerPaperSize[paperSize].productName / 2
+              )}${padFrontString(
+                product.quantity,
+                printerPaperSize[paperSize].productPrice / 2
+              )}</text-line>${lineFeed}`
+            );
+          }
+        }
+      }
+    });
+
+    return productsArray.join("");
+  }
+};
 export const formatTaxes = (taxes: any[]) => {
   let taxesArray: string[] = []; // Array para acumular las líneas
   if (paperSize) {
     taxes.forEach((tax: any) => {
       const _tax = `${tax.name} (${!tax.tax ? "-" : ""}${tax.percent}%)`;
       let amount = `$${padFrontString(
-        tax.amount.toFixed(2),
+        Number(tax.amount)?.toFixed(2),
         printerPaperSize[paperSize].productPrice
       )}`;
 
@@ -218,6 +279,11 @@ export const formatAreas = (areas: any) => {
     return xml;
   }
 };
+export const formatAreasOrder = (orders: any) => {
+  if (paperSize) {
+    return formatAreaProductOrder(orders);
+  }
+};
 export const formatCurrency = (currency: any[]) => {
   let xml = "";
   if (paperSize) {
@@ -227,7 +293,7 @@ export const formatCurrency = (currency: any[]) => {
         text,
         printerPaperSize[paperSize].productName
       )}$${padFrontString(
-        amount.toFixed(2),
+        Number(amount)?.toFixed(2),
         printerPaperSize[paperSize].productPrice
       )}</text-line>${lineFeed}`;
     });
@@ -244,7 +310,7 @@ export const formatTaxesStatus = (taxes: any) => {
         printerPaperSize[paperSize ?? 0].productName
       )}`;
       let amount = `$${padFrontString(
-        taxes[tax].toFixed(2),
+        Number(taxes[tax]).toFixed(2),
         printerPaperSize[paperSize].productPrice
       )}`;
 
@@ -304,7 +370,7 @@ export const formatMoney = (money: any) => {
     taxesKey.forEach((currency: any) => {
       const _tax = `-${currency}:`;
       let amount = `$${padFrontString(
-        (money[currency] ?? 0).toFixed(2),
+        Number(money[currency] ?? 0).toFixed(2),
         printerPaperSize[paperSize].productPrice
       )}`;
 

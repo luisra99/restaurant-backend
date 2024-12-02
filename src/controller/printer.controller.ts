@@ -74,12 +74,11 @@ export const printAreas = async (req: Request, res: Response) => {
       acc[key].push(current); // Agrega el elemento al array correspondiente
       return acc;
     }, {});
+    console.log(groupedByArea);
     print(groupedByArea, xmlVentaArea);
     res.status(200).json(groupedByArea);
   } catch (error) {
-    prisma.errorLogs.create({
-      data: { info: "printAreas", error: JSON.stringify(error) },
-    });
+    console.log(error);
     const err = error as Error & { code?: string };
 
     const descripcionError = {

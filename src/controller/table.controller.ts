@@ -31,7 +31,7 @@ export const createTable = async (req: Request, res: Response) => {
   }
 };
 
-// Listar todas las mesas
+//Listar todas las mesas
 export const listTables = async (req: Request, res: Response) => {
   try {
     const tables = await prisma.table.findMany({
@@ -51,28 +51,32 @@ export const listTables = async (req: Request, res: Response) => {
       },
       orderBy: { details: "asc" },
     });
-    const response = tables.map((table) => {
-      let amount = 0;
 
-      // Si la mesa tiene una cuenta asociada
-      if (table.Account[0]) {
-        // Iterar sobre los detalles de la cuenta para calcular el total
-        amount = table.Account?.[0].details.reduce((total, detail) => {
-          return total + detail.offer.price.toNumber() * detail.quantity;
-        }, 0);
-      }
+    const groupedTables = tables.reduce(
+      (acc: { [key: string]: any[] }, table) => {
+        let amount = 0;
 
-      // Retornar la mesa con el total calculado
+        if (table.Account?.[0]) {
+          amount = table.Account[0].details.reduce((total, detail) => {
+            return total + detail.offer.price.toNumber() * detail.quantity;
+          }, 0);
+        }
 
-      return {
-        ...table,
-        Account: table.Account[0],
-        amount, // Total calculado para esta mesa
-      };
-    });
-    res.status(200).json(response);
+        const detailKey = table.details || "Sin detalles";
+        if (!acc[detailKey]) acc[detailKey] = [];
+        acc[detailKey].push({
+          ...table,
+          Account: table.Account[0],
+          amount,
+        });
+        return acc;
+      },
+      {}
+    );
+
+    res.status(200).json(groupedTables);
   } catch (error) {
-    prisma.errorLogs.create({
+    await prisma.errorLogs.create({
       data: { info: "listTables", error: JSON.stringify(error) },
     });
     console.log(error);
@@ -85,6 +89,7 @@ export const listTables = async (req: Request, res: Response) => {
     res.status(500).json(descripcionError);
   }
 };
+
 // Listar todas las mesas
 export const getTable = async (req: Request, res: Response) => {
   try {

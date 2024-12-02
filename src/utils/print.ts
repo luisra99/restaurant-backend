@@ -41,7 +41,8 @@ export const printAccount = async (account: any) => {
       ),
     };
     print(cuenta, xmlVenta);
-  } catch {
+  } catch (error) {
+    console.log(error);
     throw new Error("Error al enviar datos a la impresora.");
   }
 };

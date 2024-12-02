@@ -17,6 +17,8 @@ import {
   getChangeConcept,
 } from "../functions/concepts";
 import { saveMovement } from "../functions/incomesOutcomes";
+import { print } from "../libs/escpos";
+import { xmlValePorArea } from "../utils/escpos.templates";
 const prisma = new PrismaClient();
 
 // Abrir cuenta
@@ -56,20 +58,73 @@ export const modifyAccountDetails = async (req: Request, res: Response) => {
   try {
     const { idAccount, idOffer, quantity, negative } = req.body;
     let response;
-    let detail = await getOrderAccountDetails(req.body);
+    let detail = await getOrderAccountDetails({ ...req.body, marched: false });
 
     if (detail) {
       const modifiedOrderDetails = modifyOrderDetail({ detail, ...req.body });
       response =
-        modifiedOrderDetails.quantity !== 0
+        modifiedOrderDetails.quantity > 0
           ? await updateOrderDetail(modifiedOrderDetails)
           : await deleteOrderDetail(modifiedOrderDetails);
     } else {
-      if (quantity != 0)
+      if (quantity > 0)
         response = await createOrderDetail({ idAccount, idOffer, quantity });
     }
     const account = await getAccountFunction({ id: idAccount });
     res.status(201).json(account);
+  } catch (error: any) {
+    console.error(error);
+    const descripcionError = {
+      message: error.message ?? "Ha ocurrido un error modificando la orden.",
+      code: error.code || "SERVER_ERROR",
+      stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+
+    res.status(500).json(descripcionError);
+  }
+};
+
+export const marchOrders = async (req: Request, res: Response) => {
+  try {
+    const { idAccount } = req.params;
+    const unmarchedOrders = await prisma.accountDetails.findMany({
+      where: { idAccount, marchado: null },
+      include: { offer: { include: { area: true } } },
+    });
+
+    function groupByAreaDenomination(details: any[]) {
+      return details.reduce((acc, detail) => {
+        const areaDenomination = detail.offer.area.denomination;
+
+        if (!acc[areaDenomination]) {
+          // Inicializar el grupo si no existe
+          acc[areaDenomination] = [];
+        }
+
+        // Agregar el detalle al grupo correspondiente
+        acc[areaDenomination].push({
+          id: detail.offer.id,
+          name: detail.offer.name,
+          quantity: detail.quantity,
+          totalPrice: detail.quantity * Number(detail.offer.price),
+        });
+
+        return acc;
+      }, {} as Record<string, { id: string; name: string; quantity: number; totalPrice: number }[]>);
+    }
+    const march = await prisma.accountDetails.updateMany({
+      where: { idAccount, marchado: null },
+      data: { marchado: new Date(Date.now()) },
+    });
+
+    const areaGrouped = groupByAreaDenomination(unmarchedOrders);
+    console.log(Object.keys(areaGrouped));
+    const areas = Object.keys(areaGrouped);
+    areas.map((area: string) => {
+      printOrderForArea(area, areaGrouped[area]);
+    });
+
+    res.status(201).json(groupByAreaDenomination(unmarchedOrders));
   } catch (error: any) {
     console.error(error);
     const descripcionError = {
@@ -129,7 +184,7 @@ export const deleteAccountDetails = async (req: Request, res: Response) => {
 
 export const getAccount = async (req: Request, res: Response) => {
   try {
-    const account = await getAccountFunction(req.params);
+    const account = await getAccountFunction({ ...req.params, distinct: true });
     res.status(200).json(account);
   } catch (error: any) {
     const descripcionError = {
@@ -232,3 +287,6 @@ export const modifyTaxes = async (req: Request, res: Response) => {
     res.status(500).json(descripcionError);
   }
 };
+function printOrderForArea(area: string, orders: any) {
+  print({ area, orders }, xmlValePorArea);
+}

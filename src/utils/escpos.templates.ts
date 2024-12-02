@@ -1,6 +1,7 @@
 import { lineFeed } from "./chatacters";
 import {
   formatAreas,
+  formatAreasOrder,
   formatCurrency,
   formatMoney,
   formatProducts,
@@ -47,7 +48,7 @@ export const xmlVenta = (cuenta: any) => `<?xml version="1.0" encoding="UTF-8"?>
       "Subtotal:",
       printerPaperSize[paperSize ?? 0].productName
     )}$${padFrontString(
-  cuenta.subTotal.toFixed(2),
+  Number(cuenta.subTotal).toFixed(2),
   printerPaperSize[paperSize ?? 0].productPrice
 )}</text-line>${lineFeed}<bold>
     <text-line>${padBackString(
@@ -75,7 +76,7 @@ export const xmlVenta = (cuenta: any) => `<?xml version="1.0" encoding="UTF-8"?>
   </align>
   <align mode="center">
    <bold>
-    <text-line size="1:1">$ ${cuenta.toPay.toFixed(
+    <text-line size="1:1">$ ${Number(cuenta.toPay).toFixed(
       2
     )} CUP</text-line>${lineFeed}</bold>
   </align>
@@ -99,13 +100,13 @@ ${
         "Pagado:",
         printerPaperSize[paperSize ?? 0].productName
       )}$${padFrontString(
-        cuenta.totalPaid.toFixed(2),
+        Number(cuenta.totalPaid).toFixed(2),
         printerPaperSize[paperSize ?? 0].productPrice
       )}</text-line>${lineFeed}<text-line>${padBackString(
         "Vuelto:",
         printerPaperSize[paperSize ?? 0].productName
       )}$${padFrontString(
-        cuenta.change.toFixed(2),
+        Number(cuenta.change).toFixed(2),
         printerPaperSize[paperSize ?? 0].productPrice
       )}</text-line>${lineFeed}`
     : ""
@@ -116,7 +117,7 @@ ${
         "Propina:",
         printerPaperSize[paperSize ?? 0].productName
       )}$${padFrontString(
-        cuenta.propina.toFixed(2),
+        Number(cuenta.propina).toFixed(2),
         printerPaperSize[paperSize ?? 0].productPrice
       )}</text-line>${lineFeed}`
     : ""
@@ -144,6 +145,41 @@ export const xmlVentaArea = (
   ${formatAreas(areas)}
 </document>
 `;
+export const xmlValePorArea = ({
+  area,
+  orders,
+}: {
+  area: string;
+  orders: any[];
+}) => `<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <align mode="center">
+  <text-line size="1:1">${padFillString(
+    printerPaperSize[paperSize ?? 0].characters / 2,
+    "."
+  )}</text-line>${lineFeed}  <text-line size="1:1">${padFillString(
+  printerPaperSize[paperSize ?? 0].characters / 2,
+  "."
+)}</text-line>${lineFeed}  <text-line size="1:1">${padFillString(
+  printerPaperSize[paperSize ?? 0].characters / 2,
+  "."
+)}</text-line>${lineFeed}  
+ 
+  </align>
+  <align mode="left">
+    <text-line size="1:1" >${area}</text-line>${lineFeed}
+    <text-line size="1:1">Hora: ${new Date(Date.now()).toLocaleTimeString(
+      "es-ES"
+    )}</text-line>${lineFeed}
+  </align>
+   <align mode="center">
+    <text-line size="0:0">${padFillString(
+      printerPaperSize[paperSize ?? 0].characters
+    )}</text-line>${lineFeed}    
+  </align>
+  ${formatAreasOrder(orders)}
+</document>
+`;
 export const xmlEstadoCaja = (
   inform: any
 ) => `<?xml version="1.0" encoding="UTF-8"?>
@@ -167,14 +203,14 @@ export const xmlEstadoCaja = (
     "Saldo inicial:",
     printerPaperSize[paperSize ?? 0].productName
   )}$${padFrontString(
-  inform.initialCash?.toFixed(2),
+  Number(inform.initialCash)?.toFixed(2),
   printerPaperSize[paperSize ?? 0].productPrice
 )}</text-line>${lineFeed}
   <text-line>${padBackString(
     "Ingreso total:",
     printerPaperSize[paperSize ?? 0].productName
   )}$${padFrontString(
-  inform.ingresoTotal?.toFixed(2),
+  Number(inform.ingresoTotal)?.toFixed(2),
   printerPaperSize[paperSize ?? 0].productPrice
 )}</text-line>${lineFeed}
   <align mode="center">
@@ -187,7 +223,7 @@ export const xmlEstadoCaja = (
     "-Venta bruta:",
     printerPaperSize[paperSize ?? 0].productName
   )}$${padFrontString(
-  inform.ventaBruta?.toFixed(2),
+  Number(inform.ventaBruta)?.toFixed(2),
   printerPaperSize[paperSize ?? 0].productPrice
 )}</text-line>${lineFeed}
      ${formatTaxesStatus(inform.impuestos)}
@@ -195,7 +231,7 @@ export const xmlEstadoCaja = (
     "-Propina:",
     printerPaperSize[paperSize ?? 0].productName
   )}$${padFrontString(
-  inform.propina?.toFixed(2),
+  Number(inform.propina)?.toFixed(2),
   printerPaperSize[paperSize ?? 0].productPrice
 )}</text-line>${lineFeed}
    <align mode="center">
@@ -217,7 +253,7 @@ export const xmlEstadoCaja = (
     "Balance:",
     printerPaperSize[paperSize ?? 0].productName
   )}$${padFrontString(
-  inform.balance?.toFixed(2),
+  Number(inform.balance)?.toFixed(2),
   printerPaperSize[paperSize ?? 0].productPrice
 )}</text-line>${lineFeed}
 </document>

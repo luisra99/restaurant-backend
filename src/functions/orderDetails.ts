@@ -5,14 +5,25 @@ const prisma = new PrismaClient();
 export const getOrderAccountDetails = async ({
   idAccount,
   idOffer,
+  marched,
 }: {
   idAccount: string;
   idOffer: string;
+  marched: boolean;
 }) => {
   try {
-    const orderAccountDetail = await prisma.accountDetails.findFirst({
-      where: { idAccount, idOffer },
-    });
+    const orderAccountDetail =
+      marched === undefined
+        ? await prisma.accountDetails.findFirst({
+            where: { idAccount, idOffer },
+          })
+        : marched
+        ? await prisma.accountDetails.findFirst({
+            where: { idAccount, idOffer, marchado: { not: null } },
+          })
+        : await prisma.accountDetails.findFirst({
+            where: { idAccount, idOffer, marchado: { equals: null } },
+          });
     return orderAccountDetail;
   } catch (error: any) {
     console.log(error);

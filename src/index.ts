@@ -9,8 +9,10 @@ import TaxDiscountsRoute from "./routes/taxDiscount.route";
 import PrinterRoute from "./routes/printer.route";
 import PaymentRoute from "./routes/payments.route";
 import OperatorRoute from "./routes/operator.route";
+import OptionsRoute from "./routes/options.route";
 
 app.use(OperatorRoute);
+app.use(OptionsRoute);
 app.use(PaymentRoute);
 app.use(ConceptRoute);
 app.use(OfferRoute);

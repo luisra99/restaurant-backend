@@ -15,16 +15,17 @@ export const print = (data: any, model: any) => {
     const buffer = EscPos.getBufferFromXML(normalizedData);
     imprimir(buffer);
     return xml;
-  } catch {
+  } catch (error) {
+    console.log(error);
     throw new Error("Error al enviar datos a la impresora.");
   }
 };
 
 export function imprimir(buffer: any) {
+  const devices = escpos.USB.findPrinter();
+  console.log("devices", devices);
+  console.log(process.env.VENDOR, process.env.PRODUCT);
   try {
-    const devices = escpos.USB.findPrinter();
-    console.log(devices);
-    console.log(process.env.VENDOR, process.env.PRODUCT);
     const device = usb.findByIds(
       devices[0].deviceDescriptor.idVendor,
       devices[0].deviceDescriptor.idProduct

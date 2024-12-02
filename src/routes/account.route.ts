@@ -9,6 +9,7 @@ import {
   deleteAccount,
   closeAccount,
   modifyTaxes,
+  marchOrders,
 } from "../controller/account.controller";
 
 const router = Router();
@@ -22,5 +23,6 @@ router.get("/accounts", listAccounts);
 router.get("/accounts/:id", getAccount);
 router.delete("/accounts/close/:id", closeAccount);
 router.delete("/accounts/:id", deleteAccount);
+router.put("/accounts/march/:idAccount", marchOrders);
 
 export default router;

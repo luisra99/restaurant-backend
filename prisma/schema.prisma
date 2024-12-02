@@ -90,14 +90,20 @@ model Account {
 }
 
 model AccountDetails {
-  id        String   @id @default(cuid())
-  idAccount String
-  idOffer   String
-  time      DateTime @updatedAt
-  house     Int      @default(0)
-  quantity  Int // Cantidad del producto ofertado
-  account   Account  @relation(fields: [idAccount], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  offer     Offer    @relation(fields: [idOffer], references: [id])
+  id              String           @id @default(cuid())
+  idAccount       String
+  idOffer         String
+  time            DateTime         @updatedAt
+  house           Int              @default(0)
+  marchado        DateTime?
+  terminado       DateTime?
+  discount        Int?
+  quantity        Int // Cantidad del producto ofertado
+  idAccountDetail String?
+  account         Account          @relation(fields: [idAccount], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  accountDetail   AccountDetails?  @relation(name: "accountDetails", fields: [idAccountDetail], references: [id], onDelete: Cascade, onUpdate: Cascade) //Para los agregos
+  offer           Offer            @relation(fields: [idOffer], references: [id])
+  AccountDetails  AccountDetails[] @relation(name: "accountDetails")
 }
 
 model Payment {
