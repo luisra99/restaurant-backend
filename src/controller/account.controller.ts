@@ -58,17 +58,31 @@ export const modifyAccountDetails = async (req: Request, res: Response) => {
   try {
     const { idAccount, idOffer, quantity, negative } = req.body;
     let response;
+    let modifiedOrderDetails;
     let detail = await getOrderAccountDetails({ ...req.body, marched: false });
 
     if (detail) {
-      const modifiedOrderDetails = modifyOrderDetail({ detail, ...req.body });
+      modifiedOrderDetails = modifyOrderDetail({ detail, ...req.body });
       response =
         modifiedOrderDetails.quantity > 0
           ? await updateOrderDetail(modifiedOrderDetails)
           : await deleteOrderDetail(modifiedOrderDetails);
     } else {
-      if (quantity > 0)
-        response = await createOrderDetail({ idAccount, idOffer, quantity });
+      if (quantity > 0) {
+        if (negative) {
+          let detail = await getOrderAccountDetails({
+            ...req.body,
+            marched: true,
+          });
+          modifiedOrderDetails = modifyOrderDetail({ detail, ...req.body });
+          response =
+            modifiedOrderDetails.quantity > 0
+              ? await updateOrderDetail(modifiedOrderDetails)
+              : await deleteOrderDetail(modifiedOrderDetails);
+        } else {
+          response = await createOrderDetail({ idAccount, idOffer, quantity });
+        }
+      }
     }
     const account = await getAccountFunction({ id: idAccount });
     res.status(201).json(account);
