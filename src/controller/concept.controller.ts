@@ -18,13 +18,13 @@ export const createConcept = async (req: Request, res: Response) => {
 
     res.status(201).json(newConcept);
   } catch (error: any) {
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error creando el concepto.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 export const getConcepts = async (req: Request, res: Response) => {
@@ -35,13 +35,13 @@ export const getConcepts = async (req: Request, res: Response) => {
 
     res.status(200).json(conceptos);
   } catch (error: any) {
-    const descripcionError = {
+    const descriptionError = {
       message: error.message || "Ha ocurrido un error listando los conceptos.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -55,13 +55,13 @@ export const getConceptById = async (req: Request, res: Response) => {
 
     res.status(200).json(concepto);
   } catch (error: any) {
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error obtiendo el concepto.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 // Modificar Concepto
@@ -81,13 +81,13 @@ export const updateConcept = async (req: Request, res: Response) => {
 
     res.status(200).json(updatedConcept);
   } catch (error: any) {
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error modificando el concepto.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -101,12 +101,12 @@ export const deleteConcept = async (req: Request, res: Response) => {
 
     res.status(200).json(deletedConcept);
   } catch (error: any) {
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error eliminando el concepto.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };

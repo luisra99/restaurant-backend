@@ -22,12 +22,12 @@ export const createTable = async (req: Request, res: Response) => {
       data: { info: "createTable", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error creando la mesa.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -81,12 +81,12 @@ export const listTables = async (req: Request, res: Response) => {
     });
     console.log(error);
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error listando las mesas.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -111,12 +111,12 @@ export const getTable = async (req: Request, res: Response) => {
       data: { info: "getTable", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error listando las mesas.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -141,12 +141,12 @@ export const updateTable = async (req: Request, res: Response) => {
       data: { info: "updateTable", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error modificando la mesa.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -165,11 +165,11 @@ export const deleteTable = async (req: Request, res: Response) => {
       data: { info: "deleteTable", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error eliminando la mesa.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };

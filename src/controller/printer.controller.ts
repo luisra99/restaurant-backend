@@ -20,13 +20,13 @@ export const printRecip = async (req: Request, res: Response) => {
     });
     const err = error as Error & { code?: string };
 
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error listando los conceptos.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 export const printAreas = async (req: Request, res: Response) => {
@@ -81,13 +81,13 @@ export const printAreas = async (req: Request, res: Response) => {
     console.log(error);
     const err = error as Error & { code?: string };
 
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error listando los conceptos.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 export const printStatus = async (req: Request, res: Response) => {
@@ -124,10 +124,10 @@ export const printStatus = async (req: Request, res: Response) => {
 
     const taxsDiscounts = account?.taxDiscount.length
       ? await prisma.taxDiscounts.findMany({
-          where: {
-            id: { in: account.taxDiscount },
-          },
-        })
+        where: {
+          id: { in: account.taxDiscount },
+        },
+      })
       : [];
     // Calcular el precio final basado en los impuestos y descuentos
     let finalPrice: number = totalPrice;
@@ -171,12 +171,12 @@ export const printStatus = async (req: Request, res: Response) => {
     });
     const err = error as Error & { code?: string };
 
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error listando los conceptos.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };

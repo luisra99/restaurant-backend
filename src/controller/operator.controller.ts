@@ -23,13 +23,13 @@ export const setInitialCash = async (req: Request, res: Response) => {
     });
     const err = error as Error & { code?: string };
     console.log(error);
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error creando el concepto.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 export const getInitialCash = async (req: Request, res: Response) => {
@@ -44,13 +44,13 @@ export const getInitialCash = async (req: Request, res: Response) => {
     });
     const err = error as Error & { code?: string };
     console.log(error);
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error creando el concepto.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 export const setFinalCash = async (req: Request, res: Response) => {
@@ -70,13 +70,13 @@ export const setFinalCash = async (req: Request, res: Response) => {
     });
     const err = error as Error & { code?: string };
 
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error creando el concepto.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 export const setOperator = async (req: Request, res: Response) => {
@@ -96,13 +96,13 @@ export const setOperator = async (req: Request, res: Response) => {
     });
     const err = error as Error & { code?: string };
 
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error creando el concepto.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 export const reset = async (req: Request, res: Response) => {
@@ -117,13 +117,13 @@ export const reset = async (req: Request, res: Response) => {
     });
     const err = error as Error & { code?: string };
 
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error creando el concepto.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 export const lastTicket = async (req: Request, res: Response) => {
@@ -145,12 +145,12 @@ export const lastTicket = async (req: Request, res: Response) => {
     });
     const err = error as Error & { code?: string };
 
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error creando el concepto.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };

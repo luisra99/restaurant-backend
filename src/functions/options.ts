@@ -44,7 +44,7 @@ export const tables = async () => {
   } catch (error) {
     console.log(error);
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error listando las mesas.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",

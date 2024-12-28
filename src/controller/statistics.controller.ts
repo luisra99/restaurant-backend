@@ -61,7 +61,7 @@ export const operatorInform = async (req: Request, res: Response) => {
       transferencia[payment.divisa?.denomination ?? "CUP"] =
         (transferencia[payment.divisa?.denomination ?? "CUP"] ?? 0) +
         Number(payment.amount) /
-          (payment.divisa?.details ? Number(payment.divisa?.details) : 1);
+        (payment.divisa?.details ? Number(payment.divisa?.details) : 1);
     });
     withdraws.map((withdraw) => {
       ingresoTotal -= Number(withdraw.amount);
@@ -104,12 +104,12 @@ export const operatorInform = async (req: Request, res: Response) => {
     });
     const err = error as Error & { code?: string };
 
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error creando el concepto.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };

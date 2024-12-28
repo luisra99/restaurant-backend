@@ -40,13 +40,13 @@ export const createOffer = async (req: Request, res: Response) => {
     }
 
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error creando la oferta.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -97,13 +97,13 @@ export const updateOffer = async (req: Request, res: Response) => {
     }
 
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error modificando la oferta.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -124,13 +124,13 @@ export const listOffers = async (req: Request, res: Response) => {
       data: { info: "listOffer", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error listando las ofertas.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 // Listar todas las ofertas recientes
@@ -153,13 +153,13 @@ export const listRecentOffers = async (req: Request, res: Response) => {
       data: { info: "listOffer", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error listando las ofertas.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 // Obtener oferta
@@ -176,13 +176,13 @@ export const getOffer = async (req: Request, res: Response) => {
       data: { info: "getOffer", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error listando las ofertas.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -201,13 +201,13 @@ export const deleteOffer = async (req: Request, res: Response) => {
       data: { info: "deleteOffer", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error eliminando la oferta.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -226,13 +226,13 @@ export const findOffersByArea = async (req: Request, res: Response) => {
       data: { info: "findOffersByArea", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error buscando ofertas por área.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -251,13 +251,13 @@ export const findOffersByCategory = async (req: Request, res: Response) => {
       data: { info: "findOffersByCategory", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error buscando ofertas por categoría.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -281,13 +281,13 @@ export const findOffersByPriceRange = async (req: Request, res: Response) => {
       data: { info: "findOffersByPriceRange", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error buscando ofertas por rango de precios.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -314,12 +314,12 @@ export const searchOffers = async (req: Request, res: Response) => {
       data: { info: "searchOffers", error: JSON.stringify(error) },
     });
     const err = error as Error & { code?: string };
-    const descripcionError = {
+    const descriptionError = {
       message: "Error buscando ofertas.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };

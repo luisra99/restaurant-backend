@@ -44,12 +44,12 @@ export const openAccount = async (req: Request, res: Response) => {
     });
     res.status(201).json(newAccount);
   } catch (error: any) {
-    const descripcionError = {
+    const descriptionError = {
       message: error.message || "Ha ocurrido un error creando la cuenta.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -88,13 +88,13 @@ export const modifyAccountDetails = async (req: Request, res: Response) => {
     res.status(201).json(account);
   } catch (error: any) {
     console.error(error);
-    const descripcionError = {
+    const descriptionError = {
       message: error.message ?? "Ha ocurrido un error modificando la orden.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -141,13 +141,13 @@ export const marchOrders = async (req: Request, res: Response) => {
     res.status(201).json(groupByAreaDenomination(unmarchedOrders));
   } catch (error: any) {
     console.error(error);
-    const descripcionError = {
+    const descriptionError = {
       message: error.message ?? "Ha ocurrido un error modificando la orden.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -162,13 +162,13 @@ export const modifyAccount = async (req: Request, res: Response) => {
     res.status(201).json(modifiedAccount);
   } catch (error: any) {
     console.error(error);
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error modificando la cuenta.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -186,13 +186,13 @@ export const deleteAccountDetails = async (req: Request, res: Response) => {
     res.status(201).json(account);
   } catch (error: any) {
     console.error(error);
-    const descripcionError = {
+    const descriptionError = {
       message: error.message || "No se pudo eliminar la orden",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -201,7 +201,7 @@ export const getAccount = async (req: Request, res: Response) => {
     const account = await getAccountFunction({ ...req.params, distinct: true });
     res.status(200).json(account);
   } catch (error: any) {
-    const descripcionError = {
+    const descriptionError = {
       message:
         error.message ||
         "Ha ocurrido un error obteniendo la información de la cuenta",
@@ -209,7 +209,7 @@ export const getAccount = async (req: Request, res: Response) => {
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -224,13 +224,13 @@ export const deleteAccount = async (req: Request, res: Response) => {
     res.status(200).json(deletedConcept);
   } catch (error: any) {
     console.log(error);
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error eliminando la cuenta.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -245,12 +245,12 @@ export const listAccounts = async (req: Request, res: Response) => {
 
     res.status(200).json(accounts);
   } catch (error: any) {
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error obteniendo las cuentas.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -272,12 +272,12 @@ export const closeAccount = async (req: Request, res: Response) => {
     res.status(200).json({ message: "Cuenta cerrada" });
   } catch (error: any) {
     console.log(error);
-    const descripcionError = {
+    const descriptionError = {
       message: error.message || "Ha ocurrido un error cerrando la cuenta.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 
@@ -292,13 +292,13 @@ export const modifyTaxes = async (req: Request, res: Response) => {
     res.status(201).json(updatedAccount);
   } catch (error: any) {
     console.error(error);
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error modificando los impuestos y descuentos.",
       code: error.code || "SERVER_ERROR",
       stackTrace: error.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
 function printOrderForArea(area: string, orders: any) {

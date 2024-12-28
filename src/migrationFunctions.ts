@@ -19,12 +19,12 @@ export const listConcepts = async (req: Request, res: Response) => {
     });
     const err = error as Error & { code?: string };
 
-    const descripcionError = {
+    const descriptionError = {
       message: "Ha ocurrido un error listando los conceptos.",
       code: err.code || "SERVER_ERROR",
       stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
     };
 
-    res.status(500).json(descripcionError);
+    res.status(500).json(descriptionError);
   }
 };
