@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { seedPermissions } from "./actions.seed";
 const prisma = new PrismaClient();
 
 // Estados del Sistema
@@ -120,6 +121,10 @@ async function main() {
         fatherId: tipoPago.id,
       },
     ],
+  });
+
+  const actions = await prisma.permission.createMany({
+    data: seedPermissions,
   });
 
   console.log("Seed data created successfully!");

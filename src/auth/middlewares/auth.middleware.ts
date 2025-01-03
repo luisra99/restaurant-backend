@@ -3,7 +3,6 @@ import { verifyToken } from "../helpers/jwt";
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
     const { token } = req.cookies;
-    console.log(req.headers)
     if (!token) {
         return res.status(401).json({ error: "Unauthorized" });
     }

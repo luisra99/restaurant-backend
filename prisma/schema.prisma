@@ -164,8 +164,15 @@ model User {
   updatedAt   DateTime @updatedAt
 }
 
+model Role {
+  id          String       @id @default(cuid())
+  name        String
+  permissions Permission[]
+}
+
 model Permission {
-  id     String @id @default(cuid())
-  name   String @unique
-  idRole String
+  action String  @id @unique
+  name   String  @unique
+  idRole String?
+  Role   Role[]
 }

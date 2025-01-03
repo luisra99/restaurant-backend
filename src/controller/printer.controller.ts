@@ -8,7 +8,7 @@ import { xmlVentaArea } from "../utils/escpos.templates";
 
 const prisma = new PrismaClient();
 
-export const printRecip = async (req: Request, res: Response) => {
+export const printRecipe = async (req: Request, res: Response) => {
   try {
     const account = await getAccountFunction(req.params);
     printAccount(account);
