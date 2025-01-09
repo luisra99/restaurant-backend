@@ -1,5 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { seedPermissions } from "./actions.seed";
+import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 // Estados del Sistema
@@ -125,6 +126,25 @@ async function main() {
 
   const actions = await prisma.permission.createMany({
     data: seedPermissions,
+  });
+  const hashedPassword = await bcrypt.hash("1234", 10);
+
+  const rootUser = await prisma.user.create({
+    data: {
+      username: "admin",
+      password: hashedPassword,
+      permissions: {
+        create: (await prisma.permission.findMany()).map(({ id }: any) => ({
+          permission: {
+            connect: { id, }
+          }
+        }))
+      }
+    }
+  })
+
+  const guest = await prisma.role.create({
+    data: { name: "INVITADO" }
   });
 
   console.log("Seed data created successfully!");

@@ -28,14 +28,6 @@ export const validatePassword = async (plainPassword: string, hashedPassword: st
     return bcrypt.compare(plainPassword, hashedPassword);
 };
 
-// Actualizar permisos de usuario
-export const updatePermissions = async (userId: string, permissions: string[]): Promise<User | null> => {
-    return prisma.user.update({
-        where: { id: userId },
-        data: { permissions },
-    });
-};
-
 // Reiniciar contraseña
 export const resetPassword = async (userId: string, newPassword: string): Promise<User | null> => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);

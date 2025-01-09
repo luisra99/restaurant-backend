@@ -155,24 +155,47 @@ model ErrorLogs {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  username    String   @unique
+  id          String           @id @default(cuid())
+  username    String           @unique
   password    String
   idRole      String?
-  permissions String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  role        Role?            @relation(fields: [idRole], references: [id])
+  permissions UserPermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 }
 
 model Role {
-  id          String       @id @default(cuid())
-  name        String
-  permissions Permission[]
+  id          String           @id @default(cuid())
+  name        String           @unique
+  permissions RolePermission[]
+  users       User[]
 }
 
 model Permission {
-  action String  @id @unique
-  name   String  @unique
-  idRole String?
-  Role   Role[]
+  id     String           @id @default(cuid())
+  action String           @unique
+  name   String           @unique
+  roles  RolePermission[]
+  users  UserPermission[]
+}
+
+model UserPermission {
+  id           String     @id @default(cuid())
+  userId       String
+  permissionId String
+  user         User       @relation(fields: [userId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([userId, permissionId])
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([roleId, permissionId])
 }
