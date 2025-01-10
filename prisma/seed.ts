@@ -183,7 +183,20 @@ async function main() {
       }
     }
   })
+  const unitOfMeasures = [
+    { name: 'Kilogramo', abbreviation: 'kg' },
+    { name: 'Gramo', abbreviation: 'g' },
+    { name: 'Litro', abbreviation: 'l' },
+    { name: 'Mililitro', abbreviation: 'ml' },
+    { name: 'Unidad', abbreviation: 'u' },
+  ];
 
+  // Insertar las unidades de medida en la base de datos
+  for (const unit of unitOfMeasures) {
+    await prisma.unitOfMeasure.create({
+      data: unit,
+    });
+  }
   const guest = await prisma.role.create({
     data: { name: "INVITADO" }
   });

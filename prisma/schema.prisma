@@ -230,7 +230,7 @@ model Local {
 model InventoryItem {
   id                String              @id @default(cuid())
   name              String
-  quantity          Float
+  description       String
   unitOfMeasureId   String
   unitOfMeasure     UnitOfMeasure       @relation(fields: [unitOfMeasureId], references: [id])
   Area              Area[]

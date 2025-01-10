@@ -1,0 +1,114 @@
+import { PrismaClient } from "@prisma/client";
+import { Request, Response } from "express";
+
+const prisma = new PrismaClient();
+
+// Listar todos los artículos de inventario
+export const listInventoryItems = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const inventoryItems = await prisma.inventoryItem.findMany();
+        res.status(200).json(inventoryItems);
+    } catch (error) {
+        await prisma.errorLogs.create({
+            data: { info: "listInventoryItems", error: JSON.stringify(error) },
+        });
+        res.status(500).json({ error: (error as Error).message });
+    }
+};
+
+// Obtener un artículo de inventario por ID
+export const getInventoryItemById = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+
+        const inventoryItem = await prisma.inventoryItem.findUnique({
+            where: { id },
+        });
+
+        if (!inventoryItem) {
+            res.status(404).json({ message: "Artículo de inventario no encontrado." });
+            return;
+        }
+
+        res.status(200).json(inventoryItem);
+    } catch (error) {
+        await prisma.errorLogs.create({
+            data: { info: "getInventoryItemById", error: JSON.stringify(error) },
+        });
+        res.status(500).json({ error: (error as Error).message });
+    }
+};
+
+// Crear un nuevo artículo de inventario
+export const createInventoryItem = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { name, description, unitOfMeasureId } = req.body;
+
+        if (!name || !unitOfMeasureId) {
+            res.status(400).json({ message: "El nombre y la unidad de medida son obligatorios." });
+            return;
+        }
+
+        const newInventoryItem = await prisma.inventoryItem.create({
+            data: {
+                name,
+                description,
+                unitOfMeasureId,
+            },
+        });
+
+        res.status(201).json(newInventoryItem);
+    } catch (error) {
+        await prisma.errorLogs.create({
+            data: { info: "createInventoryItem", error: JSON.stringify(error) },
+        });
+        res.status(500).json({ error: (error as Error).message });
+    }
+};
+
+// Actualizar un artículo de inventario
+export const updateInventoryItem = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        const { name, description, unitOfMeasureId } = req.body;
+
+        if (!name || !unitOfMeasureId) {
+            res.status(400).json({ message: "El nombre y la unidad de medida son obligatorios." });
+            return;
+        }
+
+        const updatedInventoryItem = await prisma.inventoryItem.update({
+            where: { id },
+            data: {
+                name,
+                description,
+                unitOfMeasureId,
+            },
+        });
+
+        res.status(200).json(updatedInventoryItem);
+    } catch (error) {
+        await prisma.errorLogs.create({
+            data: { info: "updateInventoryItem", error: JSON.stringify(error) },
+        });
+        res.status(500).json({ error: (error as Error).message });
+    }
+};
+
+// Eliminar un artículo de inventario
+export const deleteInventoryItem = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+
+        await prisma.inventoryItem.delete({
+            where: { id },
+        });
+
+        res.status(200).json({ message: "Artículo de inventario eliminado correctamente." });
+    } catch (error) {
+        await prisma.errorLogs.create({
+            data: { info: "deleteInventoryItem", error: JSON.stringify(error) },
+        });
+        res.status(500).json({ error: (error as Error).message });
+    }
+};

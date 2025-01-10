@@ -13,6 +13,8 @@ import OperatorRoute from "./routes/operator.route";
 import OptionsRoute from "./routes/options.route";
 import LocalRoutes from './routes/local.route';
 import AreaRoutes from './routes/area.route';
+import InventoryItemRoutes from './routes/inventoryItem.routes';
+import UnitOfMeasureRoutes from './routes/unitOfMeasure.routes';
 
 import UserRoute from "./routes/users.route";
 import { authenticate } from "./auth/middlewares/auth.middleware";
@@ -32,6 +34,8 @@ app.use(authenticate, AccountRoute);
 app.use(authenticate, DependentRoute);
 app.use(authenticate, TaxDiscountsRoute);
 app.use(authenticate, PrinterRoute);
+app.use(authenticate, InventoryItemRoutes);
+app.use(authenticate, UnitOfMeasureRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
