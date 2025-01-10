@@ -11,11 +11,16 @@ import PrinterRoute from "./routes/printer.route";
 import PaymentRoute from "./routes/payments.route";
 import OperatorRoute from "./routes/operator.route";
 import OptionsRoute from "./routes/options.route";
+import LocalRoutes from './routes/local.route';
+import AreaRoutes from './routes/area.route';
+
 import UserRoute from "./routes/users.route";
 import { authenticate } from "./auth/middlewares/auth.middleware";
 
 app.use(AuthRoute);
 app.use(authenticate, UserRoute);
+app.use(authenticate, LocalRoutes);
+app.use(authenticate, AreaRoutes);
 app.use(authenticate, OperatorRoute);
 app.use(authenticate, OptionsRoute);
 app.use(authenticate, PaymentRoute);

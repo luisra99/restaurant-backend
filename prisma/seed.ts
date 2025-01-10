@@ -56,13 +56,13 @@ async function main() {
   const mainConceptoRetiro = await prisma.concept.create({
     data: {
       denomination: "Concepto de retiro",
-      details: "Las disitintas formas de las que se retira dinero de la caja",
+      details: "Las distintas formas de las que se retira dinero de la caja",
     },
   });
   const mainConceptoIngreso = await prisma.concept.create({
     data: {
-      denomination: "Concepto de retiro",
-      details: "Las disitintas formas de las que se retira dinero de la caja",
+      denomination: "Concepto de ingreso",
+      details: "Las distintas formas de las que se retira dinero de la caja",
     },
   });
 
@@ -101,12 +101,16 @@ async function main() {
     data: [
       { denomination: "Cambio", fatherId: mainConceptoRetiro.id },
       { denomination: "Extracción", fatherId: mainConceptoRetiro.id },
+      { denomination: "Pago", fatherId: mainConceptoRetiro.id },
+      { denomination: "Devolución", fatherId: mainConceptoRetiro.id },
     ],
   });
   const conceptosIngreso = await prisma.concept.createMany({
     data: [
       { denomination: "Propina", fatherId: mainConceptoIngreso.id },
       { denomination: "Fondo", fatherId: mainConceptoIngreso.id },
+      { denomination: "Venta directa", fatherId: mainConceptoIngreso.id },
+      { denomination: "Inyección de capital", fatherId: mainConceptoIngreso.id },
     ],
   });
   const mainTipoPago = await prisma.concept.createMany({
@@ -124,6 +128,43 @@ async function main() {
     ],
   });
 
+  const mainTipoMovimiento = await prisma.concept.create({
+    data:
+    {
+      denomination: "Tipos de movimiento",
+      details: "Distintos tipos de movimiento en el inventario",
+    }
+  });
+
+  const mainMovimientos = await prisma.concept.createMany({
+    data: [
+      {
+        denomination: "Entrada",
+        details: "Llegada de un producto a un área",
+        fatherId: mainTipoMovimiento.id,
+      },
+      {
+        denomination: "Salida",
+        details: "Salida de un producto a un área",
+        fatherId: mainTipoMovimiento.id,
+      },
+      {
+        denomination: "Transferencia",
+        details: "Movimiento de un producto a un área",
+        fatherId: mainTipoMovimiento.id,
+      },
+      {
+        denomination: "Venta",
+        details: "Movimiento de un producto a un área",
+        fatherId: mainTipoMovimiento.id,
+      },
+      {
+        denomination: "Merma",
+        details: "Salida de un producto a un área",
+        fatherId: mainTipoMovimiento.id,
+      },
+    ],
+  });
   const actions = await prisma.permission.createMany({
     data: seedPermissions,
   });

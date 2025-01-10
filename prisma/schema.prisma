@@ -27,6 +27,10 @@ model Concept {
   Withdraw      Withdraw[] @relation(name: "WithdrawConcept")
   DivisaIncome  Income[]   @relation(name: "DivisaIncome")
   IncomeConcept Income[]   @relation(name: "IncomeConcept")
+
+  InventoryMovement InventoryMovement[]
+
+  CashFlow CashFlow[]
 }
 
 model TaxDiscounts {
@@ -155,14 +159,20 @@ model ErrorLogs {
 }
 
 model User {
-  id          String           @id @default(cuid())
-  username    String           @unique
-  password    String
-  idRole      String?
-  role        Role?            @relation(fields: [idRole], references: [id])
-  permissions UserPermission[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id                           String              @id @default(cuid())
+  username                     String              @unique
+  password                     String
+  idRole                       String?
+  role                         Role?               @relation(fields: [idRole], references: [id])
+  permissions                  UserPermission[]
+  createdAt                    DateTime            @default(now())
+  updatedAt                    DateTime            @updatedAt
+  InventoryMovementSupervisor  InventoryMovement[] @relation("supervisor")
+  InventoryMovementResponsable InventoryMovement[] @relation("responsable")
+
+  CashFlowResponsable CashFlow[] @relation("responsable")
+
+  CashFlowSupervisor CashFlow[] @relation("supervisor")
 }
 
 model Role {
@@ -198,4 +208,85 @@ model RolePermission {
   permission   Permission @relation(fields: [permissionId], references: [id])
 
   @@unique([roleId, permissionId])
+}
+
+model Area {
+  id                    String              @id @default(cuid())
+  name                  String
+  localId               String
+  local                 Local               @relation(fields: [localId], references: [id])
+  inventory             InventoryItem[]
+  InventoryMovementFrom InventoryMovement[] @relation("movementsFrom")
+  InventoryMovementTo   InventoryMovement[] @relation("movementsTo")
+}
+
+model Local {
+  id      String @id @default(cuid())
+  name    String
+  address String
+  areas   Area[]
+}
+
+model InventoryItem {
+  id                String              @id @default(cuid())
+  name              String
+  quantity          Float
+  unitOfMeasureId   String
+  unitOfMeasure     UnitOfMeasure       @relation(fields: [unitOfMeasureId], references: [id])
+  Area              Area[]
+  InventoryMovement InventoryMovement[]
+}
+
+model InventoryMovement {
+  id                 String            @id @default(cuid())
+  movementDate       DateTime          @default(now())
+  movementTypeId     String
+  itemId             String
+  quantity           Float
+  unitOfMesure       String
+  unitPrice          Float
+  paidPrice          Float
+  supplierCustomerId String?
+  fromAreaId         String
+  toAreaId           String
+  userId             String?
+  details            String
+  supervisorUserId   String?
+  approved           Boolean
+  fromArea           Area              @relation("movementsFrom", fields: [fromAreaId], references: [id])
+  toArea             Area              @relation("movementsTo", fields: [toAreaId], references: [id])
+  item               InventoryItem     @relation(fields: [itemId], references: [id])
+  movementType       Concept           @relation(fields: [movementTypeId], references: [id])
+  supplierCustomer   SupplierCustomer? @relation(fields: [supplierCustomerId], references: [id])
+  user               User?             @relation("responsable", fields: [userId], references: [id])
+  supervisorUser     User?             @relation("supervisor", fields: [supervisorUserId], references: [id])
+}
+
+model CashFlow {
+  id               String   @id @default(cuid())
+  amount           Float
+  movementTypeId   String
+  movementType     Concept  @relation(fields: [movementTypeId], references: [id])
+  date             DateTime @default(now())
+  user             User?    @relation("responsable", fields: [userId], references: [id])
+  userId           String?
+  supervisorUser   User?    @relation("supervisor", fields: [supervisorUserId], references: [id])
+  supervisorUserId String?
+  description      String?
+}
+
+model SupplierCustomer {
+  id                String              @id @default(cuid())
+  name              String
+  email             String?
+  phone             String?
+  address           String?
+  InventoryMovement InventoryMovement[]
+}
+
+model UnitOfMeasure {
+  id             String          @id @default(cuid())
+  name           String
+  abbreviation   String
+  inventoryItems InventoryItem[]
 }
