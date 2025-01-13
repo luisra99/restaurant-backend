@@ -149,18 +149,18 @@ async function main() {
         fatherId: mainTipoMovimiento.id,
       },
       {
-        denomination: "Transferencia",
+        denomination: "Traslado",
         details: "Movimiento de un producto a un área",
         fatherId: mainTipoMovimiento.id,
       },
       {
-        denomination: "Venta",
+        denomination: "Venta Directa",
         details: "Movimiento de un producto a un área",
         fatherId: mainTipoMovimiento.id,
       },
       {
         denomination: "Merma",
-        details: "Salida de un producto a un área",
+        details: "Salida de un producto por afectación o vencimiento",
         fatherId: mainTipoMovimiento.id,
       },
     ],

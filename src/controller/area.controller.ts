@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 // Listar todas las áreas
 export const listAreas = async (req: Request, res: Response): Promise<void> => {
     try {
-        const areas = await prisma.area.findMany();
+        const areas = await prisma.area.findMany({ include: { local: true } });
         res.status(200).json(areas);
     } catch (error) {
         await prisma.errorLogs.create({

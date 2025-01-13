@@ -52,3 +52,59 @@ export const tables = async () => {
     throw new Error("Error listando las mesas.");
   }
 };
+export const unitOfMeasure = async () => {
+  try {
+    // Obtener el concepto "Tipos de movimiento"
+    const tipoMovimiento = await prisma.concept.findFirst({
+      where: { denomination: "Tipos de movimiento" },
+    });
+
+    if (!tipoMovimiento) {
+      throw new Error("Concepto 'Tipos de movimiento' no encontrado.");
+    }
+
+    // Obtener los conceptos que tienen como padre el concepto "Tipos de movimiento"
+    const movimientos = await prisma.concept.findMany({
+      where: { fatherId: tipoMovimiento.id },
+    });
+
+    return movimientos;
+  } catch (error) {
+    console.log(error);
+    const err = error as Error & { code?: string };
+    const descriptionError = {
+      message: "Error listando las mesas.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+    throw new Error("Error listando las mesas.");
+  }
+};
+export const movementType = async () => {
+  try {
+    // Obtener el concepto "Tipos de movimiento"
+    const tipoMovimiento = await prisma.concept.findFirst({
+      where: { denomination: "Tipos de movimiento" },
+    });
+
+    if (!tipoMovimiento) {
+      throw new Error("Concepto 'Tipos de movimiento' no encontrado.");
+    }
+
+    // Obtener los conceptos que tienen como padre el concepto "Tipos de movimiento"
+    const movimientos = await prisma.concept.findMany({
+      where: { fatherId: tipoMovimiento.id }, select: { denomination: true, id: true }
+    });
+
+    return movimientos;
+  } catch (error) {
+    console.log(error);
+    const err = error as Error & { code?: string };
+    const descriptionError = {
+      message: "Error listando los tipos de movimientos.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+    throw new Error("Error listando las mesas.");
+  }
+};

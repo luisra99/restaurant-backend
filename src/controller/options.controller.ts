@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { tables } from "../functions/options";
+import { movementType, tables, unitOfMeasure } from "../functions/options";
 
 export const getOptions = async (req: Request, res: Response) => {
   try {
@@ -7,6 +7,10 @@ export const getOptions = async (req: Request, res: Response) => {
     switch (concept) {
       case "tables":
         return res.status(201).json(await tables());
+      case "movementType":
+        return res.status(201).json(await movementType());
+      case "unitOfMeasure":
+        return res.status(201).json(await unitOfMeasure());
       default:
         throw new Error("El parámetro no es correcto.");
     }

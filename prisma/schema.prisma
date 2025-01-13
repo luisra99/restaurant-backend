@@ -215,7 +215,6 @@ model Area {
   name                  String
   localId               String
   local                 Local               @relation(fields: [localId], references: [id])
-  inventory             InventoryItem[]
   InventoryMovementFrom InventoryMovement[] @relation("movementsFrom")
   InventoryMovementTo   InventoryMovement[] @relation("movementsTo")
 }
@@ -233,7 +232,6 @@ model InventoryItem {
   description       String
   unitOfMeasureId   String
   unitOfMeasure     UnitOfMeasure       @relation(fields: [unitOfMeasureId], references: [id])
-  Area              Area[]
   InventoryMovement InventoryMovement[]
 }
 
@@ -247,14 +245,14 @@ model InventoryMovement {
   unitPrice          Float
   paidPrice          Float
   supplierCustomerId String?
-  fromAreaId         String
-  toAreaId           String
+  fromAreaId         String?
+  toAreaId           String?
   userId             String?
   details            String
   supervisorUserId   String?
-  approved           Boolean
-  fromArea           Area              @relation("movementsFrom", fields: [fromAreaId], references: [id])
-  toArea             Area              @relation("movementsTo", fields: [toAreaId], references: [id])
+  approved           Boolean           @default(false)
+  fromArea           Area?             @relation("movementsFrom", fields: [fromAreaId], references: [id])
+  toArea             Area?             @relation("movementsTo", fields: [toAreaId], references: [id])
   item               InventoryItem     @relation(fields: [itemId], references: [id])
   movementType       Concept           @relation(fields: [movementTypeId], references: [id])
   supplierCustomer   SupplierCustomer? @relation(fields: [supplierCustomerId], references: [id])

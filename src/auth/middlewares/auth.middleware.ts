@@ -7,12 +7,12 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     //     return res.status(401).json({ error: "Unauthorized" });
     // }
 
-    // const { payload, newToken } = verifyToken(token);
+    const { payload, newToken } = verifyToken(token);
     // if (!payload) {
     //     return res.status(401).json({ error: "Invalid token" });
     // }
-    // req.body.user = payload
-    // const headers = new Headers({ token: newToken })
-    // res.setHeaders(headers)
+    req.body.user = payload
+    const headers = new Headers({ token: newToken })
+    res.setHeaders(headers)
     next();
 };
