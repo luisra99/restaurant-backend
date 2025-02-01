@@ -198,6 +198,14 @@ CREATE TABLE "Area" (
 );
 
 -- CreateTable
+CREATE TABLE "AreaUser" (
+    "userId" TEXT NOT NULL,
+    "areaId" TEXT NOT NULL,
+
+    CONSTRAINT "AreaUser_pkey" PRIMARY KEY ("userId","areaId")
+);
+
+-- CreateTable
 CREATE TABLE "Local" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -212,8 +220,21 @@ CREATE TABLE "InventoryItem" (
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "unitOfMeasureId" TEXT NOT NULL,
+    "alert" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "InventoryItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Stock" (
+    "itemId" TEXT NOT NULL,
+    "areaId" TEXT NOT NULL,
+    "unitPrice" DOUBLE PRECISION NOT NULL,
+    "expireDate" TIMESTAMP(3),
+    "inputMovementId" TEXT NOT NULL,
+    "quantity" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "Stock_pkey" PRIMARY KEY ("inputMovementId")
 );
 
 -- CreateTable
@@ -227,8 +248,8 @@ CREATE TABLE "InventoryMovement" (
     "unitPrice" DOUBLE PRECISION NOT NULL,
     "paidPrice" DOUBLE PRECISION NOT NULL,
     "supplierCustomerId" TEXT,
-    "fromAreaId" TEXT NOT NULL,
-    "toAreaId" TEXT NOT NULL,
+    "fromAreaId" TEXT,
+    "toAreaId" TEXT,
     "userId" TEXT,
     "details" TEXT NOT NULL,
     "supervisorUserId" TEXT,
@@ -240,8 +261,10 @@ CREATE TABLE "InventoryMovement" (
 -- CreateTable
 CREATE TABLE "CashFlow" (
     "id" TEXT NOT NULL,
-    "amount" DOUBLE PRECISION NOT NULL,
+    "amount" DECIMAL(9,2) NOT NULL,
     "movementTypeId" TEXT NOT NULL,
+    "movementId" TEXT,
+    "idDivisa" TEXT,
     "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "userId" TEXT,
     "supervisorUserId" TEXT,
@@ -266,14 +289,10 @@ CREATE TABLE "UnitOfMeasure" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "abbreviation" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "factor" JSONB NOT NULL,
 
     CONSTRAINT "UnitOfMeasure_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "_AreaToInventoryItem" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
 );
 
 -- CreateIndex
@@ -293,12 +312,6 @@ CREATE UNIQUE INDEX "UserPermission_userId_permissionId_key" ON "UserPermission"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "RolePermission_roleId_permissionId_key" ON "RolePermission"("roleId", "permissionId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_AreaToInventoryItem_AB_unique" ON "_AreaToInventoryItem"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_AreaToInventoryItem_B_index" ON "_AreaToInventoryItem"("B");
 
 -- AddForeignKey
 ALTER TABLE "Concept" ADD CONSTRAINT "Concept_fatherId_fkey" FOREIGN KEY ("fatherId") REFERENCES "Concept"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -355,9 +368,6 @@ ALTER TABLE "Income" ADD CONSTRAINT "Income_idConcepto_fkey" FOREIGN KEY ("idCon
 ALTER TABLE "Operator" ADD CONSTRAINT "Operator_idOperator_fkey" FOREIGN KEY ("idOperator") REFERENCES "Dependent"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_idRole_fkey" FOREIGN KEY ("idRole") REFERENCES "Role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "UserPermission" ADD CONSTRAINT "UserPermission_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -373,13 +383,25 @@ ALTER TABLE "RolePermission" ADD CONSTRAINT "RolePermission_permissionId_fkey" F
 ALTER TABLE "Area" ADD CONSTRAINT "Area_localId_fkey" FOREIGN KEY ("localId") REFERENCES "Local"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "InventoryItem" ADD CONSTRAINT "InventoryItem_unitOfMeasureId_fkey" FOREIGN KEY ("unitOfMeasureId") REFERENCES "UnitOfMeasure"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "AreaUser" ADD CONSTRAINT "AreaUser_areaId_fkey" FOREIGN KEY ("areaId") REFERENCES "Area"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "InventoryMovement" ADD CONSTRAINT "InventoryMovement_fromAreaId_fkey" FOREIGN KEY ("fromAreaId") REFERENCES "Area"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "AreaUser" ADD CONSTRAINT "AreaUser_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "InventoryMovement" ADD CONSTRAINT "InventoryMovement_toAreaId_fkey" FOREIGN KEY ("toAreaId") REFERENCES "Area"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Stock" ADD CONSTRAINT "Stock_inputMovementId_fkey" FOREIGN KEY ("inputMovementId") REFERENCES "InventoryMovement"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Stock" ADD CONSTRAINT "Stock_areaId_fkey" FOREIGN KEY ("areaId") REFERENCES "Area"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Stock" ADD CONSTRAINT "Stock_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "InventoryItem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InventoryMovement" ADD CONSTRAINT "InventoryMovement_fromAreaId_fkey" FOREIGN KEY ("fromAreaId") REFERENCES "Area"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InventoryMovement" ADD CONSTRAINT "InventoryMovement_toAreaId_fkey" FOREIGN KEY ("toAreaId") REFERENCES "Area"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "InventoryMovement" ADD CONSTRAINT "InventoryMovement_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "InventoryItem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -397,7 +419,13 @@ ALTER TABLE "InventoryMovement" ADD CONSTRAINT "InventoryMovement_userId_fkey" F
 ALTER TABLE "InventoryMovement" ADD CONSTRAINT "InventoryMovement_supervisorUserId_fkey" FOREIGN KEY ("supervisorUserId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "InventoryMovement" ADD CONSTRAINT "InventoryMovement_unitOfMesure_fkey" FOREIGN KEY ("unitOfMesure") REFERENCES "UnitOfMeasure"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "CashFlow" ADD CONSTRAINT "CashFlow_movementTypeId_fkey" FOREIGN KEY ("movementTypeId") REFERENCES "Concept"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CashFlow" ADD CONSTRAINT "CashFlow_idDivisa_fkey" FOREIGN KEY ("idDivisa") REFERENCES "Concept"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "CashFlow" ADD CONSTRAINT "CashFlow_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -406,7 +434,4 @@ ALTER TABLE "CashFlow" ADD CONSTRAINT "CashFlow_userId_fkey" FOREIGN KEY ("userI
 ALTER TABLE "CashFlow" ADD CONSTRAINT "CashFlow_supervisorUserId_fkey" FOREIGN KEY ("supervisorUserId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_AreaToInventoryItem" ADD CONSTRAINT "_AreaToInventoryItem_A_fkey" FOREIGN KEY ("A") REFERENCES "Area"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_AreaToInventoryItem" ADD CONSTRAINT "_AreaToInventoryItem_B_fkey" FOREIGN KEY ("B") REFERENCES "InventoryItem"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "CashFlow" ADD CONSTRAINT "CashFlow_movementId_fkey" FOREIGN KEY ("movementId") REFERENCES "InventoryMovement"("id") ON DELETE SET NULL ON UPDATE CASCADE;

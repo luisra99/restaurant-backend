@@ -103,6 +103,7 @@ async function main() {
       { denomination: "Extracción", fatherId: mainConceptoRetiro.id },
       { denomination: "Pago", fatherId: mainConceptoRetiro.id },
       { denomination: "Devolución", fatherId: mainConceptoRetiro.id },
+      { denomination: "Merma", fatherId: mainConceptoRetiro.id },
     ],
   });
   const conceptosIngreso = await prisma.concept.createMany({
@@ -110,6 +111,7 @@ async function main() {
       { denomination: "Propina", fatherId: mainConceptoIngreso.id },
       { denomination: "Fondo", fatherId: mainConceptoIngreso.id },
       { denomination: "Venta directa", fatherId: mainConceptoIngreso.id },
+      { denomination: "Cobro", fatherId: mainConceptoIngreso.id },
       { denomination: "Inyección de capital", fatherId: mainConceptoIngreso.id },
     ],
   });
@@ -174,6 +176,7 @@ async function main() {
     data: {
       username: "admin",
       password: hashedPassword,
+      idRole: "Admin",
       permissions: {
         create: (await prisma.permission.findMany()).map(({ id }: any) => ({
           permission: {
@@ -183,20 +186,102 @@ async function main() {
       }
     }
   })
-  const unitOfMeasures = [
-    { name: 'Kilogramo', abbreviation: 'kg' },
-    { name: 'Gramo', abbreviation: 'g' },
-    { name: 'Litro', abbreviation: 'l' },
-    { name: 'Mililitro', abbreviation: 'ml' },
-    { name: 'Unidad', abbreviation: 'u' },
-  ];
 
   // Insertar las unidades de medida en la base de datos
-  for (const unit of unitOfMeasures) {
-    await prisma.unitOfMeasure.create({
-      data: unit,
-    });
-  }
+  await prisma.unitOfMeasure.createMany({
+    data: [
+      {
+        "name": "Miligramo",
+        "abbreviation": "mg",
+        "type": "Masa",
+        "factor": { "mg": 1, "g": 0.001, "kg": 0.000001, "t": 0.000000001 }
+      },
+      {
+        "name": "Gramo",
+        "abbreviation": "g",
+        "type": "Masa",
+        "factor": { "mg": 1000, "g": 1, "kg": 0.001, "t": 0.000001 }
+      },
+      {
+        "name": "Kilogramo",
+        "abbreviation": "kg",
+        "type": "Masa",
+        "factor": { "mg": 1000000, "g": 1000, "kg": 1, "t": 0.001 }
+      },
+      {
+        "name": "Tonelada",
+        "abbreviation": "t",
+        "type": "Masa",
+        "factor": { "mg": 1000000000, "g": 1000000, "kg": 1000, "t": 1 }
+      },
+      {
+        "name": "Mililitro",
+        "abbreviation": "mL",
+        "type": "Volumen",
+        "factor": { "mL": 1, "L": 0.001 }
+      },
+      {
+        "name": "Litro",
+        "abbreviation": "L",
+        "type": "Volumen",
+        "factor": { "mL": 1000, "L": 1 }
+      },
+      {
+        "name": "Milímetro",
+        "abbreviation": "mm",
+        "type": "Distancia",
+        "factor": { "mm": 1, "cm": 0.1, "dm": 0.01, "m": 0.001, "km": 0.000001 }
+      },
+      {
+        "name": "Centímetro",
+        "abbreviation": "cm",
+        "type": "Distancia",
+        "factor": { "mm": 10, "cm": 1, "dm": 0.1, "m": 0.01, "km": 0.00001 }
+      },
+      {
+        "name": "Decímetro",
+        "abbreviation": "dm",
+        "type": "Distancia",
+        "factor": { "mm": 100, "cm": 10, "dm": 1, "m": 0.1, "km": 0.0001 }
+      },
+      {
+        "name": "Metro",
+        "abbreviation": "m",
+        "type": "Distancia",
+        "factor": { "mm": 1000, "cm": 100, "dm": 10, "m": 1, "km": 0.001 }
+      },
+      {
+        "name": "Kilómetro",
+        "abbreviation": "km",
+        "type": "Distancia",
+        "factor": { "mm": 1000000, "cm": 100000, "dm": 10000, "m": 1000, "km": 1 }
+      },
+      {
+        "name": "Unidad",
+        "abbreviation": "u",
+        "type": "Unidades",
+        "factor": { "u": 1, "dec": 10, "cen": 100, "mill": 1000 }
+      },
+      {
+        "name": "Decena",
+        "abbreviation": "dec",
+        "type": "Unidades",
+        "factor": { "u": 0.1, "dec": 1, "cen": 10, "mill": 100 }
+      },
+      {
+        "name": "Centena",
+        "abbreviation": "cen",
+        "type": "Unidades",
+        "factor": { "u": 0.01, "dec": 0.1, "cen": 1, "mill": 10 }
+      },
+      {
+        "name": "Millar",
+        "abbreviation": "mill",
+        "type": "Unidades",
+        "factor": { "u": 0.001, "dec": 0.01, "cen": 0.1, "mill": 1 }
+      }
+    ]
+  });
   const guest = await prisma.role.create({
     data: { name: "INVITADO" }
   });

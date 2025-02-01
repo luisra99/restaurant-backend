@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-
+import { calcDivisaConversionRateAmount } from "../utils/calc"
 const prisma = new PrismaClient();
 
 // Endpoint para registrar un nuevo pago
@@ -11,24 +11,9 @@ export const pay = async (req: Request, res: Response) => {
   try {
     // Si se proporciona idDivisa, buscar el concepto correspondiente
     if (idDivisa) {
-      const currencyConcept = await prisma.concept.findUnique({
-        where: {
-          id: idDivisa, // Convertimos a número para buscar el id
-        },
-      });
 
-      // Verificar si se encontró el concepto y que details es un número
-      if (currencyConcept && currencyConcept.details) {
-        const conversionRate = Number(currencyConcept.details);
-        if (!isNaN(conversionRate)) {
-          // Multiplicar amount por el tipo de cambio
-          amount *= conversionRate;
-        }
-      } else {
-        return res
-          .status(400)
-          .json({ error: "Divisa no válida o sin tasa de conversión." });
-      }
+      amount = await calcDivisaConversionRateAmount(idDivisa, amount);
+
     }
     let data: any = {
       idAccount: idAccount,
@@ -61,7 +46,7 @@ export const getPayments = async (req: Request, res: Response) => {
     const payments = await prisma.payment.findMany({
       where: {
         idAccount: accountId,
-      },
+      }, orderBy: { date: "desc" }
     });
     res.json(payments);
   } catch (error) {

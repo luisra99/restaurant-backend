@@ -12,25 +12,24 @@ datasource db {
 }
 
 model Concept {
-  id            String     @id @default(cuid())
-  denomination  String
-  details       String?
-  fatherId      String? // Relación opcional para permitir valores nulos
-  conceptFather Concept?   @relation("FatherConcept", fields: [fatherId], references: [id])
-  childConcept  Concept[]  @relation("FatherConcept") // Relación inversa para los conceptos hijos
-  OfferArea     Offer[]    @relation(name: "OfferArea")
-  OfferCategory Offer[]    @relation(name: "OfferCategory")
-  Account       Account[]
-  Type          Payment[]  @relation(name: "TypePayment")
-  Payment       Payment[]  @relation(name: "DivisaPayment")
-  Divisa        Withdraw[] @relation(name: "DivisaWithdraw")
-  Withdraw      Withdraw[] @relation(name: "WithdrawConcept")
-  DivisaIncome  Income[]   @relation(name: "DivisaIncome")
-  IncomeConcept Income[]   @relation(name: "IncomeConcept")
-
+  id                String              @id @default(cuid())
+  denomination      String
+  details           String?
+  fatherId          String? // Relación opcional para permitir valores nulos
+  conceptFather     Concept?            @relation("FatherConcept", fields: [fatherId], references: [id])
+  childConcept      Concept[]           @relation("FatherConcept") // Relación inversa para los conceptos hijos
+  OfferArea         Offer[]             @relation(name: "OfferArea")
+  OfferCategory     Offer[]             @relation(name: "OfferCategory")
+  Account           Account[]
+  Type              Payment[]           @relation(name: "TypePayment")
+  Payment           Payment[]           @relation(name: "DivisaPayment")
+  Divisa            Withdraw[]          @relation(name: "DivisaWithdraw")
+  Withdraw          Withdraw[]          @relation(name: "WithdrawConcept")
+  DivisaIncome      Income[]            @relation(name: "DivisaIncome")
+  IncomeConcept     Income[]            @relation(name: "IncomeConcept")
   InventoryMovement InventoryMovement[]
-
-  CashFlow CashFlow[]
+  CashFlowType      CashFlow[]
+  CashFlowDivisa    CashFlow[]          @relation(name: "DivisaCashflow")
 }
 
 model TaxDiscounts {
@@ -163,23 +162,21 @@ model User {
   username                     String              @unique
   password                     String
   idRole                       String?
-  role                         Role?               @relation(fields: [idRole], references: [id])
   permissions                  UserPermission[]
   createdAt                    DateTime            @default(now())
   updatedAt                    DateTime            @updatedAt
   InventoryMovementSupervisor  InventoryMovement[] @relation("supervisor")
   InventoryMovementResponsable InventoryMovement[] @relation("responsable")
+  CashFlowResponsable          CashFlow[]          @relation("responsable")
+  CashFlowSupervisor           CashFlow[]          @relation("supervisor")
 
-  CashFlowResponsable CashFlow[] @relation("responsable")
-
-  CashFlowSupervisor CashFlow[] @relation("supervisor")
+  AreaUser AreaUser[] @relation("UserArea")
 }
 
 model Role {
   id          String           @id @default(cuid())
   name        String           @unique
   permissions RolePermission[]
-  users       User[]
 }
 
 model Permission {
@@ -217,6 +214,18 @@ model Area {
   local                 Local               @relation(fields: [localId], references: [id])
   InventoryMovementFrom InventoryMovement[] @relation("movementsFrom")
   InventoryMovementTo   InventoryMovement[] @relation("movementsTo")
+  stock                 Stock[]
+
+  AreaUser AreaUser[] @relation("AreaUser")
+}
+
+model AreaUser {
+  userId String
+  areaId String
+  Area   Area   @relation("AreaUser", fields: [areaId], references: [id])
+  User   User   @relation("UserArea", fields: [userId], references: [id])
+
+  @@id([userId, areaId])
 }
 
 model Local {
@@ -231,46 +240,75 @@ model InventoryItem {
   name              String
   description       String
   unitOfMeasureId   String
-  unitOfMeasure     UnitOfMeasure       @relation(fields: [unitOfMeasureId], references: [id])
+  alert             Int                 @default(0)
   InventoryMovement InventoryMovement[]
+
+  Stock Stock[]
+}
+
+model Stock {
+  itemId            String
+  areaId            String
+  unitPrice         Float
+  expireDate        DateTime?
+  inputMovementId   String
+  quantity          Float
+  InventoryMovement InventoryMovement @relation("entrada", fields: [inputMovementId], references: [id])
+  Area              Area              @relation(fields: [areaId], references: [id])
+  Item              InventoryItem     @relation(fields: [itemId], references: [id])
+
+  @@id(inputMovementId)
 }
 
 model InventoryMovement {
-  id                 String            @id @default(cuid())
-  movementDate       DateTime          @default(now())
-  movementTypeId     String
-  itemId             String
-  quantity           Float
-  unitOfMesure       String
-  unitPrice          Float
-  paidPrice          Float
-  supplierCustomerId String?
-  fromAreaId         String?
-  toAreaId           String?
-  userId             String?
-  details            String
-  supervisorUserId   String?
-  approved           Boolean           @default(false)
-  fromArea           Area?             @relation("movementsFrom", fields: [fromAreaId], references: [id])
-  toArea             Area?             @relation("movementsTo", fields: [toAreaId], references: [id])
-  item               InventoryItem     @relation(fields: [itemId], references: [id])
-  movementType       Concept           @relation(fields: [movementTypeId], references: [id])
-  supplierCustomer   SupplierCustomer? @relation(fields: [supplierCustomerId], references: [id])
-  user               User?             @relation("responsable", fields: [userId], references: [id])
-  supervisorUser     User?             @relation("supervisor", fields: [supervisorUserId], references: [id])
+  id                   String             @id @default(cuid())
+  movementDate         DateTime           @default(now())
+  movementTypeId       String
+  stockInputMovementId String?
+  stockInputMovement   InventoryMovement? @relation("movimientoInicial", fields: [stockInputMovementId], references: [id])
+  itemId               String
+  quantity             Float
+  unitOfMesure         String
+  unitPrice            Float
+  paidPrice            Float
+  supplierCustomerId   String?
+  fromAreaId           String?
+  toAreaId             String?
+  userId               String?
+  details              String
+  supervisorUserId     String?
+  approved             Boolean            @default(false)
+  fromArea             Area?              @relation("movementsFrom", fields: [fromAreaId], references: [id])
+  toArea               Area?              @relation("movementsTo", fields: [toAreaId], references: [id])
+  item                 InventoryItem      @relation(fields: [itemId], references: [id])
+  movementType         Concept            @relation(fields: [movementTypeId], references: [id])
+  supplierCustomer     SupplierCustomer?  @relation(fields: [supplierCustomerId], references: [id])
+  user                 User?              @relation("responsable", fields: [userId], references: [id])
+  supervisorUser       User?              @relation("supervisor", fields: [supervisorUserId], references: [id])
+  unit                 UnitOfMeasure?     @relation("unit", fields: [unitOfMesure], references: [id])
+
+  CashFlow CashFlow[] @relation("CashFlowInventoryMovement")
+
+  Stock Stock[] @relation("entrada")
+
+  InventoryMovement InventoryMovement[] @relation("movimientoInicial")
 }
 
 model CashFlow {
-  id               String   @id @default(cuid())
-  amount           Float
-  movementTypeId   String
-  movementType     Concept  @relation(fields: [movementTypeId], references: [id])
-  date             DateTime @default(now())
-  user             User?    @relation("responsable", fields: [userId], references: [id])
-  userId           String?
-  supervisorUser   User?    @relation("supervisor", fields: [supervisorUserId], references: [id])
-  supervisorUserId String?
-  description      String?
+  id                String             @id @default(cuid())
+  amount            Decimal            @db.Decimal(9, 2)
+  movementTypeId    String
+  movementId        String?
+  movementType      Concept            @relation(fields: [movementTypeId], references: [id])
+  divisa            Concept?           @relation(name: "DivisaCashflow", fields: [idDivisa], references: [id])
+  idDivisa          String?
+  date              DateTime           @default(now())
+  user              User?              @relation("responsable", fields: [userId], references: [id])
+  userId            String?
+  supervisorUser    User?              @relation("supervisor", fields: [supervisorUserId], references: [id])
+  supervisorUserId  String?
+  description       String?
+  InventoryMovement InventoryMovement? @relation("CashFlowInventoryMovement", fields: [movementId], references: [id])
 }
 
 model SupplierCustomer {
@@ -283,8 +321,11 @@ model SupplierCustomer {
 }
 
 model UnitOfMeasure {
-  id             String          @id @default(cuid())
-  name           String
-  abbreviation   String
-  inventoryItems InventoryItem[]
+  id           String @id @default(cuid())
+  name         String
+  abbreviation String
+  type         String
+  factor       Json
+
+  InventoryMovement InventoryMovement[] @relation("unit")
 }

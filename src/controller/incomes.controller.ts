@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { getDivisaConcept, getPropinaConcept } from "../functions/concepts";
-import { getDivisaConversionRateAmount } from "../utils/calc";
+import { getPropinaConcept } from "../functions/concepts";
+import { calcDivisaConversionRateAmount } from "../utils/calc";
 
 const prisma = new PrismaClient();
 
@@ -14,10 +14,8 @@ export const setPropina = async (req: Request, res: Response) => {
     };
 
     if (idDivisa) {
-      const currencyConcept = await getDivisaConcept(idDivisa);
-      propinaData.amount = getDivisaConversionRateAmount(
+      propinaData.amount = calcDivisaConversionRateAmount(idDivisa,
         propina,
-        currencyConcept
       );
     }
 

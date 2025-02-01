@@ -52,23 +52,44 @@ export const tables = async () => {
     throw new Error("Error listando las mesas.");
   }
 };
-export const unitOfMeasure = async () => {
+export const typeUnitOfMeasure = async () => {
   try {
-    // Obtener el concepto "Tipos de movimiento"
-    const tipoMovimiento = await prisma.concept.findFirst({
-      where: { denomination: "Tipos de movimiento" },
+    // Obtener el concepto "Tipos de unidad de medida"
+    const tipoUnidadMedida = await prisma.unitOfMeasure.findMany({
     });
 
-    if (!tipoMovimiento) {
+    if (!tipoUnidadMedida) {
       throw new Error("Concepto 'Tipos de movimiento' no encontrado.");
     }
 
-    // Obtener los conceptos que tienen como padre el concepto "Tipos de movimiento"
-    const movimientos = await prisma.concept.findMany({
-      where: { fatherId: tipoMovimiento.id },
+    const types = tipoUnidadMedida.map((unidad: any) => unidad.type)
+    const collection = [...new Set(types)]
+    return collection;
+  } catch (error) {
+    console.log(error);
+    const err = error as Error & { code?: string };
+    const descriptionError = {
+      message: "Error listando las mesas.",
+      code: err.code || "SERVER_ERROR",
+      stackTrace: err.stack || "NO_STACK_TRACE_AVAILABLE",
+    };
+    throw new Error("Error listando las mesas.");
+  }
+};
+
+export const unitOfMeasure = async (type: string) => {
+  try {
+    // Obtener el concepto "Tipos de unidad de medida"
+    const tipoUnidadMedida = await prisma.unitOfMeasure.findMany({
+      where: { type },
     });
 
-    return movimientos;
+    if (!tipoUnidadMedida) {
+      throw new Error("Concepto 'Tipos de movimiento' no encontrado.");
+    }
+
+
+    return tipoUnidadMedida;
   } catch (error) {
     console.log(error);
     const err = error as Error & { code?: string };

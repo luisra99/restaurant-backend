@@ -6,8 +6,13 @@ const prisma = new PrismaClient();
 // Listar todos los artículos de inventario
 export const listInventoryItems = async (req: Request, res: Response): Promise<void> => {
     try {
-        const inventoryItems = await prisma.inventoryItem.findMany();
-        res.status(200).json(inventoryItems);
+        const inventoryItems = await prisma.inventoryItem.findMany({ include: { InventoryMovement: { where: { movementType: { denomination: { equals: "Entrada" } } } } } });
+
+        res.status(200).json(inventoryItems.map((item: any) => {
+            item.InventoryMovement = item.InventoryMovement?.map((movement: any) => movement.unitPrice).sort()
+            item.name = `${item.name}${item.InventoryMovement?.length > 0 ? ` ($${item.InventoryMovement?.length == 1 ? `${item.InventoryMovement[0]})` : `${item.InventoryMovement[0]}${item.InventoryMovement[item.InventoryMovement.length - 1] == item.InventoryMovement[0] ? "" : ` - $${item.InventoryMovement[item.InventoryMovement.length - 1]}`})`}` : ""}`
+            return item
+        }));
     } catch (error) {
         await prisma.errorLogs.create({
             data: { info: "listInventoryItems", error: JSON.stringify(error) },
@@ -105,6 +110,23 @@ export const deleteInventoryItem = async (req: Request, res: Response): Promise<
         });
 
         res.status(200).json({ message: "Artículo de inventario eliminado correctamente." });
+    } catch (error) {
+        await prisma.errorLogs.create({
+            data: { info: "deleteInventoryItem", error: JSON.stringify(error) },
+        });
+        res.status(500).json({ error: (error as Error).message });
+    }
+};
+export const getStockItem = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { itemId, areaId }: any = req.query;
+        const standar: any = { "mass": "kg", "volume": "lt", "distance": "m", "units": "u" }
+
+        const items = await prisma.stock.findMany({
+            where: { itemId, areaId, quantity: { gt: 0 } }, include: { Item: true, InventoryMovement: true }
+        });
+
+        res.status(200).json(items.map((item) => { return { ...item, unitOfMeasure: standar[item.Item.unitOfMeasureId] } }));
     } catch (error) {
         await prisma.errorLogs.create({
             data: { info: "deleteInventoryItem", error: JSON.stringify(error) },

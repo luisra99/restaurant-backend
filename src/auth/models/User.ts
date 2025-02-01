@@ -13,7 +13,7 @@ export const createUser = async ({ username, password }: IUserInput): Promise<Us
     return prisma.user.create({
         data: {
             username,
-            password: hashedPassword,
+            password: hashedPassword, idRole: "INVITADO"
         },
     });
 };
