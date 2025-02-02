@@ -48,8 +48,6 @@
     "escpos-xml": "^1.0.0",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
-    "html-pdf": "^3.0.1",
-    "html-to-text": "^9.0.5",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
     "morgan": "^1.10.0",
@@ -57,7 +55,6 @@
     "node-brother-label-printer": "^1.1.1",
     "nodemailer": "^6.9.13",
     "nodemon": "^3.0.3",
-    "puppeteer": "^23.5.1",
     "ts-node-dev": "^2.0.0",
     "usb": "^2.14.0",
     "zod": "^3.22.4"

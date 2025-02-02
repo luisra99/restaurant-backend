@@ -335,6 +335,62 @@ export const undoInventoryMovement = async (req: Request, res: Response): Promis
 
 export const listInventoryMovements = async (req: Request, res: Response): Promise<void> => {
     try {
+        const {itemId,areaId}=req.query
+        const inventoryMovements = await prisma.inventoryMovement.findMany({
+            include: {
+
+                movementType: true,
+                item: true,
+                unit: true,
+                fromArea: {
+                    include: {
+                        local: true,
+                    },
+                },
+                toArea: {
+                    include: {
+                        local: true,
+                    },
+                }, Stock: true
+                ,
+                user: true,
+                supervisorUser: true,
+            },
+            orderBy: { movementDate: "desc" },where:{itemId:itemId?.toString(),OR:[{fromAreaId:areaId?.length?areaId?.toString():null},{toAreaId:areaId?.length?areaId?.toString():null }]}
+        });
+
+        const detailedMovements = inventoryMovements.map((movement: any) => ({
+            ...movement,
+            movementTypeDenomination: movement.movementType.denomination,
+            itemName: movement.item.name,
+            quantity: movement.quantity,
+            unitOfMeasure: movement.unit.abbreviation,
+            unitPrice: movement.unitPrice,
+            totalPrice: movement.unitPrice * movement.quantity,
+            paidPrice: movement.paidPrice,
+            originLocal: movement.fromArea?.local.name,
+            originArea: movement.fromArea?.name,
+            destinationLocal: movement.toArea?.local.name,
+            destinationArea: movement.toArea?.name,
+            movementUser: movement.user ? movement.user.username : null,
+            details: movement.details,
+            approved: movement.approved,
+            expireDate: revertExpireDate(movement.Stock?.[0]?.expireDate),
+            supervisor: movement.supervisorUser ? movement.supervisorUser.username : null,
+        }));
+
+        res.status(200).json(detailedMovements);
+    } catch (error) {
+        await prisma.errorLogs.create({
+            data: { info: "listDetailedInventoryMovements", error: JSON.stringify(error) },
+        });
+        res.status(500).json({ error: (error as Error).message });
+    }
+};
+export const listInventoryMovementsOut = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const {itemId,areaId}=req.query
+
         const inventoryMovements = await prisma.inventoryMovement.findMany({
             include: {
                 movementType: true,
@@ -354,7 +410,9 @@ export const listInventoryMovements = async (req: Request, res: Response): Promi
                 user: true,
                 supervisorUser: true,
             },
-            orderBy: { movementDate: "desc" }
+            orderBy: { movementDate: "desc" },where:{movementType:{denomination:"Salida"}, AND:{itemId:itemId?.length?itemId?.toString():undefined,OR:[{fromAreaId:areaId?.length?areaId?.toString():undefined},{toAreaId:areaId?.length?areaId?.toString():undefined }]}}
+       
+            
         });
 
         const detailedMovements = inventoryMovements.map((movement: any) => ({

@@ -217,13 +217,13 @@ async function main() {
       {
         "name": "Mililitro",
         "abbreviation": "mL",
-        "type": "Volumen",
+        "type": "Volúmen",
         "factor": { "mL": 1, "L": 0.001 }
       },
       {
         "name": "Litro",
         "abbreviation": "L",
-        "type": "Volumen",
+        "type": "Volúmen",
         "factor": { "mL": 1000, "L": 1 }
       },
       {
