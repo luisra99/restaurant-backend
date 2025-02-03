@@ -66,11 +66,12 @@ export const getStockByLocal = async (req: Request, res: Response): Promise<void
         const { itemId, areaId } = req.query
 
         const inputs = await prisma.local.findMany({ include: { areas: { include: { InventoryMovementTo: { include: { item: true, unit: true }, } } } } })
-        const stock = await prisma.local.findMany({ include: { areas: { include: { stock: { where: { itemId: itemId?.toString().length ? itemId.toString() : undefined, areaId: areaId?.length ? areaId?.toString() : undefined, quantity: { gt: 0 }, InventoryMovement: { movementType: { denomination: { not: "Salida" } } } }, include: { InventoryMovement: true, Item: true }, } } } } })
         const outputs = await prisma.local.findMany({ include: { areas: { include: { InventoryMovementFrom: { include: { item: true, unit: true } } } } } })
-        const standar: any = { "mass": "kg", "volume": "lt", "distance": "m", "units": "u" }
+        // const stock = await prisma.local.findMany({ include: { areas: { include: { stock: { where: { itemId: itemId?.toString().length ? itemId.toString() : undefined, areaId: areaId?.length ? areaId?.toString() : undefined, quantity: { gt: 0 }, InventoryMovement: { movementType: { denomination: { not: "Salida" } } } }, include: { InventoryMovement: true, Item: true }, } } } } })
+        const stock = await prisma.local.findMany({ include: { areas: { include: { stock: { include: { Area: true, Item: true }, where: { itemId: itemId?.toString().length ? itemId.toString() : undefined, areaId: areaId?.length ? areaId?.toString() : undefined, quantity: { gt: 0 } } } }, } } })
+        const standar: any = { "mass": "g", "volume": "mL", "distance": "cm", "units": "u" }
 
-        console.log(stock)
+        console.log(JSON.stringify(stock))
         const stockByAreaInLocal = stock.map((local: any) => {
             return {
                 localId: local.id,

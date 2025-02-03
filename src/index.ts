@@ -18,6 +18,7 @@ import InventoryItemRoutes from './routes/inventoryItem.routes';
 import InventoryMovementRoutes from './routes/inventoryMovement.routes';
 import CashFlowRoutes from './routes/cashflow.route';
 import SupplierCustomerRoutes from './routes/customer.route';
+import StockRoutes from './routes/stock.route';
 
 import UserRoute from "./routes/users.route";
 import { authenticate } from "./auth/middlewares/auth.middleware";
@@ -41,6 +42,8 @@ app.use(authenticate, InventoryItemRoutes);
 app.use(authenticate, InventoryMovementRoutes);
 app.use(authenticate, CashFlowRoutes);
 app.use(authenticate, SupplierCustomerRoutes);
+app.use(authenticate, StockRoutes);
+
 app.use("/host", (req, res) => {
   const datos: any = os.networkInterfaces()
   let ipAddress

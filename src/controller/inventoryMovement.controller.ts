@@ -86,14 +86,9 @@ export const createInventoryMovement = async (req: Request, res: Response): Prom
         }
 
 
-        const standar = { "Unidades": "u", "Masa": "kg", "Volúmen": "L", "Distancia": "m" }
-        console.log({ abbreviation, unitOfMesure })
-        const unitOfMeasureData = abbreviation ? await prisma.unitOfMeasure.findFirst({ where: { abbreviation } }) : await prisma.unitOfMeasure.findFirst({ where: { id: unitOfMesure } })
-        console.log(unitOfMeasureData)
-        const unitOfMeasureStandar = await prisma.unitOfMeasure.findFirst({ where: { abbreviation: standar[unitOfMeasureData?.type as never] as never } })
-        console.log(standar[unitOfMeasureData?.type as never])
-        quantity *= unitOfMeasureData?.factor?.[standar[unitOfMeasureData.type as never]] ?? 0
-        unitPrice *= unitOfMeasureData?.factor?.[standar[unitOfMeasureData.type as never]] ?? 0
+        const standar = { "units": "u", "mass": "g", "volume": "mL", "distance": "cm" }
+        const product = await prisma.inventoryItem.findUnique({ where: { id: itemId } })
+        const unitOfMeasureStandar = await prisma.unitOfMeasure.findFirst({ where: { abbreviation: standar[product?.unitOfMeasureId as never] as never } })
         unitOfMesure = unitOfMeasureStandar?.id
 
         if (movementTypeDenomination) {
@@ -121,8 +116,8 @@ export const createInventoryMovement = async (req: Request, res: Response): Prom
                 stockInputMovementId: inputMovementId,
                 quantity: Number(quantity),
                 unitOfMesure,
-                unitPrice: movementTypeDenomination == "Venta Directa" ? Number(unitPriceSell) : Number(unitPrice),
-                paidPrice: Number(paidPrice),
+                unitPrice: movementTypeDenomination == "Venta Directa" ? Number(unitPriceSell ?? 0) : Number(unitPrice ?? 0),
+                paidPrice: Number(paidPrice ?? 0),
                 supplierCustomerId,
                 fromAreaId,
                 toAreaId,
@@ -132,20 +127,20 @@ export const createInventoryMovement = async (req: Request, res: Response): Prom
                 approved,
             },
         });
-        const existingItemInStockDestiny = inputMovementId ? await prisma.stock.findFirst({
-            where: { itemId, areaId: toAreaId, unitPrice, inputMovementId: inputMovementId },
-        }) : null
-        console.log("inputMovementId", { itemId, areaId: toAreaId, unitPrice, inputMovementId }, existingItemInStockDestiny)
+
+        const existingItemInStockDestiny = await prisma.stock.findFirst({
+            where: { itemId, areaId: toAreaId, },
+        })
+
 
         const existingItemInStockSource = fromAreaId
             ? await prisma.stock.findFirst({
-                where: { itemId, areaId: fromAreaId, unitPrice, inputMovementId },
+                where: { itemId, areaId: fromAreaId },
             })
             : null;
 
         // Si hay un área de origen
         if (fromAreaId) {
-            console.log(existingItemInStockSource, unitOfMeasureData, unitOfMeasureStandar)
             // Verificar si hay suficiente stock en el área de origen antes de realizar el movimiento
             if (!existingItemInStockSource || existingItemInStockSource.quantity < quantity) {
                 throw new Error(
@@ -153,15 +148,11 @@ export const createInventoryMovement = async (req: Request, res: Response): Prom
                 );
             }
             // Si ya existe el artículo en el área de destino, sumar la cantidad
-            if (toAreaId) {
+            if (toAreaId && movementTypeDenomination != "Salida") {
                 if (existingItemInStockDestiny) {
                     await prisma.stock.update({
                         where: {
-
-                            itemId,
-                            areaId: toAreaId,
-                            unitPrice,
-                            inputMovementId, expireDate
+                            itemId_areaId: { itemId, areaId: toAreaId }
                         },
 
                         data: {
@@ -177,8 +168,6 @@ export const createInventoryMovement = async (req: Request, res: Response): Prom
                             quantity: Number(quantity),
                             itemId,
                             areaId: toAreaId,
-                            unitPrice,
-                            inputMovementId: newInventoryMovement.id, expireDate
                         },
                     });
                 }
@@ -188,12 +177,9 @@ export const createInventoryMovement = async (req: Request, res: Response): Prom
             // Reducir la cantidad en el área de origen
             await prisma.stock.update({
                 where: {
-                    itemId,
-                    areaId: fromAreaId,
-                    unitPrice,
-                    inputMovementId,
-                    expireDate
+                    itemId_areaId: { itemId, areaId: fromAreaId }
                 },
+
                 data: {
                     quantity:
                         Number(existingItemInStockSource.quantity) - Number(quantity),
@@ -208,18 +194,13 @@ export const createInventoryMovement = async (req: Request, res: Response): Prom
                         quantity: Number(quantity),
                         itemId,
                         areaId: toAreaId,
-                        unitPrice,
-                        inputMovementId: newInventoryMovement.id, expireDate
+
                     },
                 });
             } else {
                 await prisma.stock.update({
                     where: {
-                        itemId,
-                        areaId: toAreaId,
-                        unitPrice,
-                        inputMovementId,
-                        expireDate
+                        itemId_areaId: { itemId, areaId: toAreaId }
                     },
                     data: {
                         quantity:
@@ -243,53 +224,79 @@ export const createInventoryMovement = async (req: Request, res: Response): Prom
 };
 
 // Actualizar un movimiento de inventario
-export const updateInventoryMovement = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const { id } = req.params;
-        const {
-            movementTypeId,
-            itemId,
-            quantity,
-            unitOfMesure,
-            unitPrice,
-            paidPrice,
-            supplierCustomerId,
-            fromAreaId,
-            toAreaId,
-            userId,
-            details,
-            supervisorUserId,
-            approved,
-        } = req.body;
+// export const updateInventoryMovement = async (req: Request, res: Response): Promise<void> => {
+//     try {
+//         const { id } = req.params;
+//         const {
+//             movementTypeId,
+//             itemId,
+//             quantity,
+//             unitOfMesure,
+//             unitPrice,
+//             paidPrice,
+//             supplierCustomerId,
+//             fromAreaId,
+//             toAreaId,
+//             userId,
+//             details,
+//             supervisorUserId,
+//             approved,
+//         } = req.body;
+//         const getMovementForQuantity = await prisma.inventoryMovement.findUnique({ where: { id } })
 
-        const updatedInventoryMovement = await prisma.inventoryMovement.update({
-            where: { id },
-            data: {
-                movementTypeId,
-                itemId,
-                quantity:Number(quantity),
-                unitOfMesure,
-                unitPrice: Number(unitPrice),
-                paidPrice: Number(paidPrice),
-                supplierCustomerId,
-                fromAreaId,
-                toAreaId,
-                userId,
-                details,
-                supervisorUserId,
-                approved
-            },
-        });
-        const updateStock = await prisma.stock.update({ data: { expireDate: convertExpireDate(req.body.expireDate), unitPrice: Number(unitPrice) }, where: { inputMovementId: id } })
-        res.status(200).json(updatedInventoryMovement);
-    } catch (error) {
-        await prisma.errorLogs.create({
-            data: { info: "updateInventoryMovement", error: JSON.stringify(error) },
-        });
-        console.log(error)
-        res.status(500).json({ error: (error as Error).message });
-    }
-};
+
+
+//         const existingItemInStockDestiny = await prisma.stock.findFirst({
+//             where: { itemId, areaId: toAreaId, },
+//         })
+
+
+//         const existingItemInStockSource = fromAreaId
+//             ? await prisma.stock.findFirst({
+//                 where: { itemId, areaId: fromAreaId },
+//             })
+//             : null;
+
+//         const compareQuantity = Number(getMovementForQuantity?.quantity) == Number(quantity)
+
+//         if (compareQuantity) {
+
+//         }
+
+
+//         const updatedInventoryMovement = await prisma.inventoryMovement.update({
+//             where: { id },
+//             data: {
+//                 movementTypeId,
+//                 itemId,
+//                 quantity:Number(quantity),
+//                 unitOfMesure,
+//                 unitPrice: Number(unitPrice),
+//                 paidPrice: Number(paidPrice),
+//                 supplierCustomerId,
+//                 fromAreaId,
+//                 toAreaId,
+//                 userId,
+//                 details,
+//                 supervisorUserId,
+//                 approved
+//             },
+//         });
+
+
+
+
+//         const updateStockNew = await prisma.stock.update({ where: {itemId_areaId:{areaId,itemId}},data:{}})
+//         const updateStock = await prisma.stock.update({ data: { expireDate: convertExpireDate(req.body.expireDate), unitPrice: Number(unitPrice) }, where: { inputMovementId: id } })
+//         res.status(200).json(updatedInventoryMovement);
+//     } catch (error) {
+//         await prisma.errorLogs.create({
+//             data: { info: "updateInventoryMovement", error: JSON.stringify(error) },
+//         });
+//         console.log(error)
+//         res.status(500).json({ error: (error as Error).message });
+//     }
+// };
 
 // Eliminar un movimiento de inventario
 export const undoInventoryMovement = async (req: Request, res: Response): Promise<void> => {
@@ -301,28 +308,23 @@ export const undoInventoryMovement = async (req: Request, res: Response): Promis
         });
         if (!movimiento) res.status(404).json({ message: "Movimiento de inventario no encontrado." });
 
-        if (!movimiento?.fromAreaId) {
-            await prisma.stock.deleteMany({ where: { inputMovementId: id } })
-            await prisma.inventoryMovement.delete({ where: { id } });
-            await prisma.cashFlow.deleteMany({ where: { movementId: id } });
-        } else {
-            const oldStock = movimiento.stockInputMovementId ? await prisma.stock.findFirst({ where: { inputMovementId: movimiento.stockInputMovementId } }) : null;
-            const stockToRevert = await prisma.stock.findFirst({ where: { inputMovementId: movimiento.id } });
-            if (oldStock && movimiento.stockInputMovementId && stockToRevert) {
-                await prisma.stock.update({
-                    where: { inputMovementId: movimiento.stockInputMovementId },
-                    data: { quantity: oldStock.quantity + stockToRevert.quantity }
-                });
-                await prisma.stock.delete({ where: { inputMovementId: movimiento.id } });
-                await prisma.inventoryMovement.delete({ where: { id } });
-
-            } else {
-                res.status(404).json({ message: "Movimiento de inventario original no encontrado." });
-            }
-
-
+        const existingItemInStockDestiny = await prisma.stock.findFirst({
+            where: { itemId: movimiento?.itemId, areaId: movimiento?.toAreaId ?? undefined, },
+        })
+        const existingItemInStockSource =
+            await prisma.stock.findFirst({
+                where: { itemId: movimiento?.itemId, areaId: movimiento?.fromAreaId ?? undefined },
+            })
+            ;
+        if (existingItemInStockDestiny && movimiento && movimiento?.toAreaId) {
+            await prisma.stock.update({ where: { itemId_areaId: { itemId: movimiento?.itemId, areaId: movimiento?.toAreaId } }, data: { quantity: Number(existingItemInStockDestiny.quantity) - Number(movimiento.quantity) } })
+        }
+        if (existingItemInStockSource && movimiento && movimiento?.fromAreaId) {
+            await prisma.stock.update({ where: { itemId_areaId: { itemId: movimiento?.itemId, areaId: movimiento?.fromAreaId } }, data: { quantity: Number(existingItemInStockSource.quantity) + Number(movimiento.quantity) } })
         }
 
+        await prisma.inventoryMovement.delete({ where: { id } });
+        await prisma.cashFlow.deleteMany({ where: { movementId: id } });
 
         res.status(200).json({ message: "Movimiento de inventario eliminado correctamente." });
     } catch (error) {
@@ -335,10 +337,9 @@ export const undoInventoryMovement = async (req: Request, res: Response): Promis
 
 export const listInventoryMovements = async (req: Request, res: Response): Promise<void> => {
     try {
-        const {itemId,areaId}=req.query
+        const { itemId, areaId } = req.query
         const inventoryMovements = await prisma.inventoryMovement.findMany({
             include: {
-
                 movementType: true,
                 item: true,
                 unit: true,
@@ -354,9 +355,20 @@ export const listInventoryMovements = async (req: Request, res: Response): Promi
                 }, Stock: true
                 ,
                 user: true,
-                supervisorUser: true,
+                supervisorUser: true, supplierCustomer: true
             },
-            orderBy: { movementDate: "desc" },where:{itemId:itemId?.toString(),OR:[{fromAreaId:areaId?.length?areaId?.toString():null},{toAreaId:areaId?.length?areaId?.toString():null }]}
+            orderBy: {
+                movementDate: "desc"
+            },
+            where: {
+                itemId: itemId?.toString().length ? itemId?.toString() : undefined,
+                AND: {
+                    OR: [{ fromAreaId: areaId?.length ? areaId?.toString() : undefined },
+                    { toAreaId: areaId?.length ? areaId?.toString() : undefined }]
+                }
+
+
+            }
         });
 
         const detailedMovements = inventoryMovements.map((movement: any) => ({
@@ -375,6 +387,7 @@ export const listInventoryMovements = async (req: Request, res: Response): Promi
             movementUser: movement.user ? movement.user.username : null,
             details: movement.details,
             approved: movement.approved,
+            supplierCustomer: movement.supplierCustomer?.name,
             expireDate: revertExpireDate(movement.Stock?.[0]?.expireDate),
             supervisor: movement.supervisorUser ? movement.supervisorUser.username : null,
         }));
@@ -389,7 +402,7 @@ export const listInventoryMovements = async (req: Request, res: Response): Promi
 };
 export const listInventoryMovementsOut = async (req: Request, res: Response): Promise<void> => {
     try {
-        const {itemId,areaId}=req.query
+        const { itemId, areaId } = req.query
 
         const inventoryMovements = await prisma.inventoryMovement.findMany({
             include: {
@@ -410,9 +423,9 @@ export const listInventoryMovementsOut = async (req: Request, res: Response): Pr
                 user: true,
                 supervisorUser: true,
             },
-            orderBy: { movementDate: "desc" },where:{movementType:{denomination:"Salida"}, AND:{itemId:itemId?.length?itemId?.toString():undefined,OR:[{fromAreaId:areaId?.length?areaId?.toString():undefined},{toAreaId:areaId?.length?areaId?.toString():undefined }]}}
-       
-            
+            orderBy: { movementDate: "desc" }, where: { movementType: { denomination: "Salida" }, AND: { itemId: itemId?.length ? itemId?.toString() : undefined, OR: [{ fromAreaId: areaId?.length ? areaId?.toString() : undefined }, { toAreaId: areaId?.length ? areaId?.toString() : undefined }] } }
+
+
         });
 
         const detailedMovements = inventoryMovements.map((movement: any) => ({

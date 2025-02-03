@@ -237,7 +237,7 @@ model Local {
 
 model InventoryItem {
   id                String              @id @default(cuid())
-  name              String
+  name              String              @unique
   description       String
   unitOfMeasureId   String
   alert             Int                 @default(0)
@@ -249,15 +249,15 @@ model InventoryItem {
 model Stock {
   itemId            String
   areaId            String
-  unitPrice         Float
+  unitPrice         Float?
   expireDate        DateTime?
-  inputMovementId   String
+  inputMovementId   String?
   quantity          Float
-  InventoryMovement InventoryMovement @relation("entrada", fields: [inputMovementId], references: [id])
-  Area              Area              @relation(fields: [areaId], references: [id])
-  Item              InventoryItem     @relation(fields: [itemId], references: [id])
+  InventoryMovement InventoryMovement? @relation("entrada", fields: [inputMovementId], references: [id])
+  Area              Area               @relation(fields: [areaId], references: [id])
+  Item              InventoryItem      @relation(fields: [itemId], references: [id])
 
-  @@id(inputMovementId)
+  @@id([itemId, areaId])
 }
 
 model InventoryMovement {

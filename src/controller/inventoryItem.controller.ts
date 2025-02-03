@@ -64,11 +64,11 @@ export const createInventoryItem = async (req: Request, res: Response): Promise<
         });
 
         res.status(201).json(newInventoryItem);
-    } catch (error) {
+    } catch (error: any) {
         await prisma.errorLogs.create({
             data: { info: "createInventoryItem", error: JSON.stringify(error) },
         });
-        res.status(500).json({ error: (error as Error).message });
+        res.status(500).json({ error: error.code === "P2002" ? "No pueden haber productos con el mismo nombre" : "" });
     }
 };
 
