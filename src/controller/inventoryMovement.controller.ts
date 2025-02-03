@@ -267,7 +267,7 @@ export const updateInventoryMovement = async (req: Request, res: Response): Prom
             data: {
                 movementTypeId,
                 itemId,
-                quantity,
+                quantity:Number(quantity),
                 unitOfMesure,
                 unitPrice: Number(unitPrice),
                 paidPrice: Number(paidPrice),

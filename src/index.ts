@@ -1,4 +1,5 @@
 import app from "./app";
+const os = require("os")
 import AuthRoute from "./auth/routes";
 import ConceptRoute from "./routes/concepts.route";
 import OfferRoute from "./routes/offer.route";
@@ -40,7 +41,22 @@ app.use(authenticate, InventoryItemRoutes);
 app.use(authenticate, InventoryMovementRoutes);
 app.use(authenticate, CashFlowRoutes);
 app.use(authenticate, SupplierCustomerRoutes);
+app.use("/host", (req, res) => {
+  const datos: any = os.networkInterfaces()
+  let ipAddress
 
+  for (let nombreInterfaz in datos.interfaces) {
+    const interfaces = datos.interfaces[nombreInterfaz];
+
+    // Buscar la primera interfaz IPv4 externa
+    for (let inteface of interfaces) {
+      if (inteface.family === 'IPv4' && !inteface.internal) {
+        ipAddress = inteface.address
+      }
+    }
+  }
+  res.status(200).json({ ipAddress })
+})
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
 });

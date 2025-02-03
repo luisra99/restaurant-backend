@@ -63,8 +63,10 @@ const calculateProductQuantities = (data: any): any[] => {
 
 export const getStockByLocal = async (req: Request, res: Response): Promise<void> => {
     try {
+        const { itemId, areaId } = req.query
+
         const inputs = await prisma.local.findMany({ include: { areas: { include: { InventoryMovementTo: { include: { item: true, unit: true }, } } } } })
-        const stock = await prisma.local.findMany({ include: { areas: { include: { stock: { where: { quantity: { gt: 0 } ,InventoryMovement:{movementType:{denomination:{not:"Salida"}}}}, include: { InventoryMovement: true, Item: true }, } } } } })
+        const stock = await prisma.local.findMany({ include: { areas: { include: { stock: { where: { itemId: itemId?.toString().length ? itemId.toString() : undefined, areaId: areaId?.length ? areaId?.toString() : undefined, quantity: { gt: 0 }, InventoryMovement: { movementType: { denomination: { not: "Salida" } } } }, include: { InventoryMovement: true, Item: true }, } } } } })
         const outputs = await prisma.local.findMany({ include: { areas: { include: { InventoryMovementFrom: { include: { item: true, unit: true } } } } } })
         const standar: any = { "mass": "kg", "volume": "lt", "distance": "m", "units": "u" }
 
@@ -91,8 +93,9 @@ export const getStockByLocal = async (req: Request, res: Response): Promise<void
                 })
             };
         });
+        const stockInArray = stockByAreaInLocal.map((local) => { return { ...local, areas: local.areas.map((area: any) => { return { ...area, products: Object.values(area.products).sort((a: any, b: any) => a.itemName.toLowerCase() < b.itemName.toLowerCase() ? -1 : a.itemName.toLowerCase() > b.itemName.toLowerCase() ? 1 : 0) } }) } })
 
-        res.json(stockByAreaInLocal)
+        res.json(stockInArray)
         // res.json(calculateProductQuantities({ inputs, outputs }))
     } catch (error) {
         await prisma.errorLogs.create({

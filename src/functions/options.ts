@@ -81,7 +81,7 @@ export const unitOfMeasure = async (type: string) => {
   try {
     // Obtener el concepto "Tipos de unidad de medida"
     const tipoUnidadMedida = await prisma.unitOfMeasure.findMany({
-      where: { type },
+      where: { type }, orderBy: { name: "asc" }
     });
 
     if (!tipoUnidadMedida) {
@@ -114,7 +114,7 @@ export const movementType = async () => {
 
     // Obtener los conceptos que tienen como padre el concepto "Tipos de movimiento"
     const movimientos = await prisma.concept.findMany({
-      where: { fatherId: tipoMovimiento.id }, select: { denomination: true, id: true }
+      where: { fatherId: tipoMovimiento.id }, select: { denomination: true, id: true }, orderBy: { denomination: "asc" }
     });
 
     return movimientos;

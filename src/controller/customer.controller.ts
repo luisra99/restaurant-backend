@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 // Listar todos los proveedores/clientes
 export const listSupplierCustomers = async (req: Request, res: Response): Promise<void> => {
     try {
-        const supplierCustomers = await prisma.supplierCustomer.findMany();
+        const supplierCustomers = await prisma.supplierCustomer.findMany({ orderBy: { name: "asc" } });
         res.status(200).json(supplierCustomers);
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });

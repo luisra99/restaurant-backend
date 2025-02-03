@@ -6,11 +6,12 @@ const prisma = new PrismaClient();
 // Listar todos los artículos de inventario
 export const listInventoryItems = async (req: Request, res: Response): Promise<void> => {
     try {
-        const inventoryItems = await prisma.inventoryItem.findMany({ include: { InventoryMovement: { where: { movementType: { denomination: { equals: "Entrada" } } } } }, orderBy:{name:"asc"}});
+        const inventoryItems = await prisma.inventoryItem.findMany({ include: { InventoryMovement: { where: { movementType: { denomination: { equals: "Entrada" } } } } }, orderBy: { name: "asc" } });
 
         res.status(200).json(inventoryItems.map((item: any) => {
             item.InventoryMovement = item.InventoryMovement?.map((movement: any) => movement.unitPrice).sort()
-            item.name = `${item.name}${item.InventoryMovement?.length > 0 ? ` ($${item.InventoryMovement?.length == 1 ? `${item.InventoryMovement[0]})` : `${item.InventoryMovement[0]}${item.InventoryMovement[item.InventoryMovement.length - 1] == item.InventoryMovement[0] ? "" : ` - $${item.InventoryMovement[item.InventoryMovement.length - 1]}`})`}` : ""}`
+            item.name = `${item.name}`
+            item.priceTag = `${item.InventoryMovement?.length > 0 ? ` ($${item.InventoryMovement?.length == 1 ? `${item.InventoryMovement[0]})` : `${item.InventoryMovement[0]}${item.InventoryMovement[item.InventoryMovement.length - 1] == item.InventoryMovement[0] ? "" : ` - $${item.InventoryMovement[item.InventoryMovement.length - 1]}`})`}` : ""}`
             return item
         }));
     } catch (error) {
@@ -123,10 +124,10 @@ export const getStockItem = async (req: Request, res: Response): Promise<void> =
         const standar: any = { "mass": "kg", "volume": "lt", "distance": "m", "units": "u" }
 
         const items = await prisma.stock.findMany({
-            where: { itemId, areaId, quantity: { gt: 0 } ,InventoryMovement:{movementType:{denomination:{not:"Salida"}}}}, include: { Item: true, InventoryMovement: true }
+            where: { itemId, areaId, quantity: { gt: 0 }, InventoryMovement: { movementType: { denomination: { not: "Salida" } } } }, include: { Item: true, InventoryMovement: true }, orderBy: { InventoryMovement: { movementDate: "asc" } },
         });
 
-        res.status(200).json(items.map((item) => { return { ...item, unitOfMeasure: standar[item.Item.unitOfMeasureId] } }));
+        res.status(200).json(items.map((item) => { return { ...item, unitOfMeasure: standar[item.Item.unitOfMeasureId], } }));
     } catch (error) {
         await prisma.errorLogs.create({
             data: { info: "deleteInventoryItem", error: JSON.stringify(error) },
