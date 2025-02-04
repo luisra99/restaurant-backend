@@ -109,7 +109,7 @@ export const createInventoryMovement = async (req: Request, res: Response): Prom
         }
 
 
-        const newInventoryMovement = await prisma.inventoryMovement.create({
+        const newInventoryMovement: any = req.body.user.id ? await prisma.inventoryMovement.create({
             data: {
                 movementTypeId,
                 itemId,
@@ -126,7 +126,7 @@ export const createInventoryMovement = async (req: Request, res: Response): Prom
                 supervisorUserId,
                 approved,
             },
-        });
+        }) : console.log("");
 
         const existingItemInStockDestiny = await prisma.stock.findFirst({
             where: { itemId, areaId: toAreaId, },
